@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BalancoPatrimonial.App.Views.PlanilhamentoPage"
+             Title="Planilhamento">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+
+            <Label Text="Planilhamento" Style="{StaticResource TituloPagina}"/>
+            <Label Text="Importe um PDF de demonstração financeira para análise automática, ou faça o planilhamento manual."
+                   Style="{StaticResource SubtituloPagina}"/>
+
+            <!-- Abas: Automático / Manual -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="16">
+
+                    <HorizontalStackLayout Spacing="0">
+                        <Button x:Name="btnTabAuto"
+                                Text="Análise por PDF"
+                                Style="{StaticResource PrimaryButton}"
+                                Clicked="OnTabAutoClicked"/>
+                        <Button x:Name="btnTabManual"
+                                Text="Planilhamento Manual"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnTabManualClicked"
+                                Margin="8,0,0,0"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Conteúdo da aba Automática -->
+                    <VerticalStackLayout x:Name="painelAuto" Spacing="12">
+                        <Label Text="Selecione o PDF da empresa"
+                               Style="{StaticResource LabelCampo}"/>
+
+                        <Border Stroke="{StaticResource Border}"
+                                StrokeThickness="2"
+                                StrokeDashArray="4,4"
+                                Padding="40"
+                                HeightRequest="160">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="📄" FontSize="40" HorizontalOptions="Center"/>
+                                <Label Text="Clique para selecionar um PDF"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center"/>
+                                <Button Text="Selecionar PDF"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Clicked="OnSelecionarPdfClicked"
+                                        HorizontalOptions="Center"
+                                        Margin="0,8,0,0"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Label Text="Implementação completa na Fase 5 — parser de PDF com PdfPig + detecção automática de balanço consolidado/individual."
+                               FontSize="12"
+                               TextColor="{StaticResource TextMuted}"/>
+                    </VerticalStackLayout>
+
+                    <!-- Conteúdo da aba Manual -->
+                    <VerticalStackLayout x:Name="painelManual" Spacing="12" IsVisible="False">
+                        <Label Text="Planilhamento Manual"
+                               Style="{StaticResource LabelCampo}"/>
+                        <Label Text="Implementação na Fase 4 — formulário com hierarquia de contas (Ativo Circulante, ANC, Passivo Circulante, PNC, PL) e cálculo automático de totalizadores."
+                               FontSize="13"
+                               TextColor="{StaticResource TextSecondary}"/>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
