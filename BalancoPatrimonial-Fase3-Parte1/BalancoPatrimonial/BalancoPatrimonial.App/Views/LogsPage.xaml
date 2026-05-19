@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BalancoPatrimonial.App.Views.LogsPage"
+             Title="Logs">
+
+    <Grid RowDefinitions="Auto, Auto, *" Padding="24" RowSpacing="16">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="Logs do Sistema" Style="{StaticResource TituloPagina}"/>
+            <Label Text="Eventos registrados pelo sistema, agrupados por dia. Armazenados em TXT + MongoDB."
+                   Style="{StaticResource SubtituloPagina}"/>
+        </VerticalStackLayout>
+
+        <!-- Filtros -->
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="12">
+                <Label Grid.Column="0"
+                       Text="Data:"
+                       VerticalOptions="Center"
+                       Style="{StaticResource LabelCampo}"/>
+                <DatePicker Grid.Column="1"
+                            x:Name="dpData"/>
+                <Button Grid.Column="2"
+                        Text="Filtrar"
+                        Style="{StaticResource SecondaryButton}"/>
+                <Button Grid.Column="3"
+                        Text="Exportar XML"
+                        Style="{StaticResource PrimaryButton}"/>
+            </Grid>
+        </Border>
+
+        <!-- Lista de logs -->
+        <Border Grid.Row="2" Style="{StaticResource Card}">
+            <VerticalStackLayout Spacing="12" HorizontalOptions="Center" VerticalOptions="Center">
+                <Label Text="📋" FontSize="48" HorizontalOptions="Center"/>
+                <Label Text="Nenhum log registrado ainda"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+                <Label Text="Logs serão registrados no MongoDB e em arquivos TXT diários a partir da Fase 3."
+                       Style="{StaticResource SubtituloPagina}"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Border>
+
+    </Grid>
+</ContentPage>
