@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:BalancoPatrimonial.App.Models"
+             x:Class="BalancoPatrimonial.App.Views.CadastroEmpresaPage"
+             Title="Cadastro de Empresa">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+
+            <!-- Cabeçalho -->
+            <VerticalStackLayout Spacing="4">
+                <Label x:Name="lblTitulo"
+                       Text="Nova Empresa"
+                       Style="{StaticResource TituloPagina}"/>
+                <Label x:Name="lblSubtitulo"
+                       Text="Preencha os dados da empresa."
+                       Style="{StaticResource SubtituloPagina}"/>
+            </VerticalStackLayout>
+
+            <!-- Dados básicos -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="14">
+
+                    <Label Text="Dados básicos" FontAttributes="Bold" FontSize="15"/>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="CNPJ *" Style="{StaticResource LabelCampo}"/>
+                        <Entry x:Name="txtCnpj"
+                               Placeholder="00.000.000/0000-00"
+                               Keyboard="Numeric"
+                               MaxLength="18"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Razão Social *" Style="{StaticResource LabelCampo}"/>
+                        <Entry x:Name="txtRazaoSocial" Placeholder="Nome jurídico da empresa"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Nome Fantasia" Style="{StaticResource LabelCampo}"/>
+                        <Entry x:Name="txtNomeFantasia" Placeholder="Nome comercial"/>
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="UF" Style="{StaticResource LabelCampo}"/>
+                            <Entry x:Name="txtUf" Placeholder="SP" MaxLength="2"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Local de atuação" Style="{StaticResource LabelCampo}"/>
+                            <Entry x:Name="txtLocal" Placeholder="Nacional / Regional / Sudeste..."/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Tipo da empresa" Style="{StaticResource LabelCampo}"/>
+                        <Picker x:Name="pkTipo"
+                                ItemDisplayBinding="{Binding Nome}"/>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Análise de crédito -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="14">
+
+                    <Label Text="Análise de crédito" FontAttributes="Bold" FontSize="15"/>
+
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Rating" Style="{StaticResource LabelCampo}"/>
+                            <Picker x:Name="pkRating"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Limite de crédito (R$)" Style="{StaticResource LabelCampo}"/>
+                            <Entry x:Name="txtLimite"
+                                   Placeholder="0,00"
+                                   Keyboard="Numeric"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Grupo econômico" Style="{StaticResource LabelCampo}"/>
+                        <Picker x:Name="pkGrupo"
+                                ItemDisplayBinding="{Binding Nome}"/>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Setores (N:N) -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="Setores de atuação"
+                               FontAttributes="Bold"
+                               FontSize="15"/>
+                        <Label Grid.Column="1"
+                               x:Name="lblContagemSetores"
+                               Text="0 selecionados"
+                               Style="{StaticResource SubtituloPagina}"/>
+                    </Grid>
+
+                    <Label Text="Marque um ou mais setores. O primeiro marcado vira o principal."
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <!-- Lista de setores com checkbox -->
+                    <CollectionView x:Name="lvSetores"
+                                    SelectionMode="Multiple"
+                                    SelectionChanged="OnSetorSelectionChanged"
+                                    HeightRequest="220">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:SetorAtividade">
+                                <Grid ColumnDefinitions="Auto, *" Padding="4,6" ColumnSpacing="10">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Codigo}"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource Primary}"
+                                           VerticalOptions="Center"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Nome}"
+                                           FontSize="14"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Ações -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                <Button Grid.Column="0"
+                        Text="Cancelar"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnCancelarClicado"/>
+                <Button Grid.Column="1"
+                        x:Name="btnSalvar"
+                        Text="Salvar"
+                        Style="{StaticResource PrimaryButton}"
+                        Clicked="OnSalvarClicado"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
