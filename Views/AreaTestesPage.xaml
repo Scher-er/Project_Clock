@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BalancoPatrimonial.App.Views.AreaTestesPage"
+             Title="Área de Testes">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Área de Testes" Style="{StaticResource TituloPagina}"/>
+                <Label Text="Ferramentas de diagnóstico e testes do sistema. A simulação de planilhamento sem persistência chega na Fase 7."
+                       Style="{StaticResource SubtituloPagina}"/>
+            </VerticalStackLayout>
+
+            <!-- Testes de conexão -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🔌 Testes de conexão"
+                           FontAttributes="Bold"
+                           FontSize="15"/>
+                    <Label Text="Verifica se o app consegue se conectar a cada banco configurado."
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
+                        <Button Grid.Column="0"
+                                Text="MySQL"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnTestarMySqlClicado"/>
+                        <Button Grid.Column="1"
+                                Text="SQLite"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnTestarSqliteClicado"/>
+                        <Button Grid.Column="2"
+                                Text="MongoDB"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnTestarMongoClicado"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Geração de logs de teste -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="📋 Logs de demonstração"
+                           FontAttributes="Bold"
+                           FontSize="15"/>
+                    <Label Text="Gera eventos de exemplo para popular a tela de Logs (vão para MongoDB + TXT diário)."
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <Button Text="Gerar 5 logs de teste"
+                            Style="{StaticResource PrimaryButton}"
+                            Clicked="OnGerarLogsClicado"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Teste de balanceamento -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🧮 Teste de balanceamento"
+                           FontAttributes="Bold"
+                           FontSize="15"/>
+                    <Label Text="Constrói um balanço fictício e valida se Ativo = Passivo + PL."
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
+                        <Button Grid.Column="0"
+                                Text="Balanço fechado"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnTestarBalanceamentoFechado"/>
+                        <Button Grid.Column="1"
+                                Text="Balanço aberto"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnTestarBalanceamentoAberto"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Resultados -->
+            <Border Style="{StaticResource Card}" BackgroundColor="#0F1A2D">
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="📤 Saída"
+                               FontAttributes="Bold"
+                               FontSize="14"
+                               TextColor="White"/>
+                        <Button Grid.Column="1"
+                                Text="Limpar"
+                                FontSize="11"
+                                HeightRequest="28"
+                                Padding="10,0"
+                                BackgroundColor="Transparent"
+                                TextColor="#94A3B8"
+                                BorderColor="#334155"
+                                BorderWidth="1"
+                                CornerRadius="4"
+                                Clicked="OnLimparClicado"/>
+                    </Grid>
+                    <ScrollView HeightRequest="280">
+                        <Label x:Name="lblSaida"
+                               Text="Aguardando teste..."
+                               FontFamily="Consolas"
+                               FontSize="12"
+                               TextColor="#E2E8F0"
+                               LineBreakMode="WordWrap"/>
+                    </ScrollView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

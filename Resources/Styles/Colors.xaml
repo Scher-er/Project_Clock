@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Paleta principal — tons corporativos bancários -->
+    <Color x:Key="Primary">#1F3A60</Color>           <!-- azul escuro -->
+    <Color x:Key="PrimaryDark">#13243D</Color>
+    <Color x:Key="PrimaryLight">#3D5A87</Color>
+    <Color x:Key="Secondary">#C9A14A</Color>         <!-- dourado -->
+    <Color x:Key="Accent">#0E7C66</Color>            <!-- verde positivo -->
+    <Color x:Key="Danger">#C0392B</Color>            <!-- vermelho negativo -->
+    <Color x:Key="Warning">#E67E22</Color>
+
+    <!-- Superfícies -->
+    <Color x:Key="Background">#F4F6F9</Color>
+    <Color x:Key="Surface">#FFFFFF</Color>
+    <Color x:Key="SidebarBackground">#FFFFFF</Color>
+    <Color x:Key="Border">#E1E5EB</Color>
+
+    <!-- Texto -->
+    <Color x:Key="TextPrimary">#1A1A1A</Color>
+    <Color x:Key="TextSecondary">#5A6478</Color>
+    <Color x:Key="TextOnPrimary">#FFFFFF</Color>
+    <Color x:Key="TextMuted">#8A93A6</Color>
+
+    <!-- Modo escuro (Fase 7 — toggle salvo no SQLite) -->
+    <Color x:Key="BackgroundDark">#0F1620</Color>
+    <Color x:Key="SurfaceDark">#1A2330</Color>
+    <Color x:Key="TextPrimaryDark">#F0F2F5</Color>
+
+</ResourceDictionary>
