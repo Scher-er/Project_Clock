@@ -16,29 +16,47 @@ public class BalancoService : IBalancoService
         _log = log;
     }
 
-    public async Task<ResultadoOperacao<int>> SalvarAsync(Balanco balanco)
+    public async Task<ResultadoOperacao<int>> SalvarAsync(Balanco balanco, bool substituir = false)
     {
         // 1) Validação básica
         var erros = ValidarCampos(balanco);
         if (erros.Count > 0)
             return ResultadoOperacao<int>.Falha("Há erros de validação.", erros);
 
-        // 2) Duplicidade lógica
+        // 2) Duplicidade lógica (empresa+ano+tipo entre os ATIVOS)
         if (await _balancoDao.ExisteAsync(balanco.EmpresaId, balanco.AnoExercicio, balanco.TipoBalanco))
         {
-            return ResultadoOperacao<int>.Falha(
-                $"Já existe um balanço {balanco.TipoBalanco} de {balanco.AnoExercicio} para esta empresa. " +
-                "Exclua o anterior ou altere o ano/tipo.");
+            if (!substituir)
+            {
+                // Sinaliza duplicata pra View poder perguntar "substituir?"
+                var dup = ResultadoOperacao<int>.Falha(
+                    $"Já existe um balanço {balanco.TipoBalanco} de {balanco.AnoExercicio} para esta empresa.");
+                dup.Erros.Add("DUPLICATA");
+                return dup;
+            }
+
+            // Substituir: marca o balanço ativo existente como inativo (soft delete)
+            var idAntigo = await _balancoDao.BuscarIdAtivoAsync(
+                balanco.EmpresaId, balanco.AnoExercicio, balanco.TipoBalanco);
+            if (idAntigo is int antigo)
+            {
+                await _balancoDao.ExcluirAsync(antigo); // ativado=0
+                await _log.RegistrarAsync(TipoEventoLog.Alteracao, "SUBSTITUIU_BALANCO",
+                    $"Balanço id={antigo} substituído (marcado inativo) por nova versão.",
+                    "Balanco", antigo.ToString());
+            }
         }
 
-        // 3) Duplicidade por hash de PDF (se importado de PDF)
+        // 3) Duplicidade por hash de PDF (só entre ativos)
         if (!string.IsNullOrEmpty(balanco.HashOrigemPdf))
         {
             var jaImportado = await _balancoDao.BuscarPorHashPdfAsync(balanco.HashOrigemPdf);
-            if (jaImportado is not null)
+            if (jaImportado is not null && !substituir)
             {
-                return ResultadoOperacao<int>.Falha(
+                var dup = ResultadoOperacao<int>.Falha(
                     $"Este PDF já foi importado anteriormente (balanço id {jaImportado.Id}).");
+                dup.Erros.Add("DUPLICATA");
+                return dup;
             }
         }
 
@@ -89,6 +107,9 @@ public class BalancoService : IBalancoService
         }
     }
 
+    public Task<bool> ExisteAsync(int empresaId, int anoExercicio, TipoBalanco tipo)
+        => _balancoDao.ExisteAsync(empresaId, anoExercicio, tipo);
+
     public async Task<ResultadoOperacao<bool>> ExcluirAsync(int balancoId)
     {
         try
@@ -107,6 +128,29 @@ public class BalancoService : IBalancoService
         catch (Exception ex)
         {
             await _log.RegistrarErroAsync("EXCLUIR_BALANCO", ex, "Balanco");
+            return ResultadoOperacao<bool>.FalhaExcecao(ex);
+        }
+    }
+
+    public async Task<ResultadoOperacao<bool>> AtualizarComContasAsync(Balanco balanco)
+    {
+        var erros = ValidarCampos(balanco);
+        if (erros.Count > 0)
+            return ResultadoOperacao<bool>.Falha("Há erros de validação.", erros);
+
+        try
+        {
+            var ok = await _balancoDao.AtualizarComContasAsync(balanco);
+            await _log.RegistrarAsync(
+                TipoEventoLog.Alteracao,
+                "EDITOU_BALANCO",
+                $"Balanço id={balanco.Id} editado: {balanco.Contas.Count} contas.",
+                "Balanco", balanco.Id.ToString());
+            return ResultadoOperacao<bool>.Ok(ok, "Balanço atualizado.");
+        }
+        catch (Exception ex)
+        {
+            await _log.RegistrarErroAsync("EDITAR_BALANCO", ex, "Balanco");
             return ResultadoOperacao<bool>.FalhaExcecao(ex);
         }
     }

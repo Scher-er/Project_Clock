@@ -1,17 +1,18 @@
 is_global = true
+build_property.MvvmToolkitEnableINotifyPropertyChangingSupport = true
 build_property.TargetFramework = net8.0-windows10.0.19041.0
 build_property.TargetFrameworkIdentifier = .NETCoreApp
 build_property.TargetFrameworkVersion = v8.0
 build_property.TargetPlatformMinVersion = 10.0.17763.0
 build_property.UsingMicrosoftNETSdkWeb = 
-build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 9A19103F-16F7-4668-BE54-9A1E7A4F7556
 build_property.InvariantGlobalization = 
 build_property.PlatformNeutralAssembly = 
 build_property.EnforceExtendedAnalyzerRules = 
 build_property.EntryPointFilePath = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = BalancoPatrimonial.App
-build_property.ProjectDir = C:\Users\scher\OneDrive(OG)\Desktop\Projeto_Balaço_V0\BalancoPatrimonial-Fase3-Completa\BalancoPatrimonial\BalancoPatrimonial.App\
+build_property.ProjectDir = C:\Users\scher\OneDrive(OG)\Documents\GitHub\Project_Clock\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTAotOptimizerEnabled = true
@@ -24,3 +25,93 @@ build_property.CsWinRTAotWarningLevel =
 build_property.CsWinRTUseWindowsUIXamlProjections = false
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/AppShell.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.AppShell.xaml
+build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
+build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Resources/Styles/Styles.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Resources.Styles.Styles.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/AnalisesPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.AnalisesPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\AnalisesPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\AnalisesPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/AreaTestesPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.AreaTestesPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\AreaTestesPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\AreaTestesPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/BalancosEmpresaPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.BalancosEmpresaPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\BalancosEmpresaPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\BalancosEmpresaPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/CadastroEmpresaPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.CadastroEmpresaPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\CadastroEmpresaPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\CadastroEmpresaPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/ComparacaoPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.ComparacaoPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\ComparacaoPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\ComparacaoPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/DetalheBalancoPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.DetalheBalancoPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\DetalheBalancoPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\DetalheBalancoPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/EmpresasPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.EmpresasPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\EmpresasPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\EmpresasPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/LoginPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.LoginPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\LoginPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\LoginPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/LogsPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.LogsPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\LogsPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\LogsPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/PlanilhamentoPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.PlanilhamentoPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\PlanilhamentoPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\PlanilhamentoPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/RevisaoImportacaoPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.RevisaoImportacaoPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\RevisaoImportacaoPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\RevisaoImportacaoPage.xaml

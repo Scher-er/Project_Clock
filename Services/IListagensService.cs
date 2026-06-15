@@ -16,4 +16,7 @@ public interface IListagensService : IService
     Task<IEnumerable<GrupoEconomico>> ListarGruposEconomicosAsync();
     Task<IEnumerable<SetorAtividade>> ListarSetoresAsync();
     Task<IEnumerable<ContaPadrao>> ListarContasPadraoAsync(GrupoContaPrincipal? grupo = null);
+
+    /// <summary>Cria conta analítica filha de uma totalizadora, com código único gerado.</summary>
+    Task<ResultadoOperacao<ContaPadrao>> CriarContaAnaliticaAsync(int contaPaiId, string descricao);
 }

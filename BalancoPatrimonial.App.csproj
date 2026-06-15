@@ -1,8 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+		<!--
+			Apenas Windows como alvo. Pra adicionar Android/iOS/macCatalyst depois:
+			  1. Instale os workloads:  dotnet workload install maui
+			  2. Adicione os targets:   net8.0-android;net8.0-ios;net8.0-maccatalyst
+			  3. Restaure os blocos de SupportedOSPlatformVersion abaixo.
+		-->
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>BalancoPatrimonial.App</RootNamespace>
@@ -18,27 +23,43 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+
+		<!-- Modo unpackaged: roda como app .NET tradicional, sem MSIX/Windows App SDK Runtime.
+		     Funciona melhor pra demonstração acadêmica e não exige instalação do runtime
+		     do SDK separadamente. Ver: https://learn.microsoft.com/windows/apps/windows-app-sdk/deploy-unpackaged-apps -->
+		<WindowsPackageType>None</WindowsPackageType>
+
+		<!-- Versão do MAUI fixada explicitamente (em vez de $(MauiVersion))
+		     pra não depender do workload estar atualizado. -->
+		<MauiVersion>8.0.100</MauiVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1F3A60" />
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1F3A60" BaseSize="128,128" />
-		<MauiImage Include="Resources\Images\*" />
-		<MauiFont Include="Resources\Fonts\*" />
-		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<MauiImage Include="Resources\Images\*" Exclude="Resources\Images\*.md" />
+		<MauiFont Include="Resources\Fonts\*" Exclude="Resources\Fonts\*.md" />
+		<MauiAsset Include="Resources\Raw\**" Exclude="Resources\Raw\*.md" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<!-- MAUI core -->
+		<!-- Configuração de bancos lida em runtime (DatabaseSettings) -->
+		<EmbeddedResource Include="appsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- MAUI core. UseMaui=true automaticamente puxa Microsoft.Maui.Controls.Build.Tasks
+		     (responsável pelo source generator que cria Main). -->
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.3" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+
+		<!-- Windows App SDK (WinUI 3 native runtime). Adding PackageReference ensures
+			 build tooling includes the framework dependency for packaged apps. -->
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.1" />
 
 		<!-- Banco MySQL — driver moderno totalmente async, recomendado vs MySql.Data -->
 		<PackageReference Include="MySqlConnector" Version="2.3.7" />
@@ -52,6 +73,19 @@
 
 		<!-- Hash de senha (BCrypt) — Fase 3 -->
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+
+		<!-- Parser de PDF (Fase 5) — extração de texto de PDFs de balanço -->
+		<PackageReference Include="PdfPig" Version="0.1.10" />
+
+		<!-- Exportação Excel (Fase 6) -->
+		<PackageReference Include="ClosedXML" Version="0.104.2" />
+
+		<!-- Exportação PDF (Fase 6) — Community License declarada no MauiProgram.
+		     Versão fixada em 2024.10.3 (estável). A 2025.x mudou API quebrando o código. -->
+		<PackageReference Include="QuestPDF" Version="2024.10.3" />
+
+		<!-- Gráficos (Fase 7) — SkiaSharp-based, multiplataforma -->
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.Maui" Version="2.0.0-rc5.4" />
 	</ItemGroup>
 
 </Project>

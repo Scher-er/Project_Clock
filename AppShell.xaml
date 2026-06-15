@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:BalancoPatrimonial.App.Views"
     Shell.FlyoutBehavior="Flyout"
-    Shell.FlyoutBackgroundColor="{StaticResource SidebarBackground}"
+    Shell.FlyoutBackgroundColor="{AppThemeBinding Light={StaticResource SidebarBackground}, Dark={StaticResource SidebarBackgroundDark}}"
     Shell.BackgroundColor="{StaticResource Primary}"
     Shell.ForegroundColor="White"
     Shell.TitleColor="White"
@@ -46,21 +46,35 @@
         <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />
     </Shell.Resources>
 
-    <!-- As 4 páginas acessíveis pelo sidebar -->
+    <!--
+        IMPORTANTE: os ShellContents abaixo NÃO definem ContentTemplate aqui.
+        O code-behind do AppShell atribui os templates via DI (App.Services)
+        no construtor. Sem isso, o MAUI tenta instanciar as páginas via
+        Activator.CreateInstance que falha porque as pages têm construtores
+        com parâmetros (injeção de dependência).
+    -->
     <FlyoutItem Title="Planilhamento" Route="planilhamento">
-        <ShellContent ContentTemplate="{DataTemplate views:PlanilhamentoPage}" />
+        <ShellContent x:Name="scPlanilhamento" />
     </FlyoutItem>
 
     <FlyoutItem Title="Empresas" Route="empresas">
-        <ShellContent ContentTemplate="{DataTemplate views:EmpresasPage}" />
+        <ShellContent x:Name="scEmpresas" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Análises" Route="analises">
+        <ShellContent x:Name="scAnalises" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Comparar" Route="comparar">
+        <ShellContent x:Name="scComparacao" />
     </FlyoutItem>
 
     <FlyoutItem Title="Logs" Route="logs">
-        <ShellContent ContentTemplate="{DataTemplate views:LogsPage}" />
+        <ShellContent x:Name="scLogs" />
     </FlyoutItem>
 
     <FlyoutItem Title="Área de Testes" Route="testes">
-        <ShellContent ContentTemplate="{DataTemplate views:AreaTestesPage}" />
+        <ShellContent x:Name="scTestes" />
     </FlyoutItem>
 
     <!-- Item de logout no rodapé do flyout -->

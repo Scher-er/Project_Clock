@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BalancoPatrimonial.App.Views.Items"
+             x:Class="BalancoPatrimonial.App.Views.BalancosEmpresaPage"
+             Title="Balanços da Empresa">
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="0">
+
+        <!-- Cabeçalho -->
+        <Border Grid.Row="0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
+                Padding="24,16">
+            <VerticalStackLayout Spacing="2">
+                <Label x:Name="lblTitulo" Text="Balanços" Style="{StaticResource TituloPagina}"/>
+                <Label x:Name="lblSubtitulo"
+                       Text="Carregando..."
+                       Style="{StaticResource SubtituloPagina}"/>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Lista de balanços -->
+        <ScrollView Grid.Row="1" Padding="24,12">
+            <Grid>
+                <!-- Estado vazio -->
+                <VerticalStackLayout x:Name="painelVazio"
+                                     Spacing="8"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     IsVisible="False">
+                    <Label Text="Nenhum balanço armazenado"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="Use a tela de Planilhamento pra criar o primeiro balanço desta empresa."
+                           Style="{StaticResource SubtituloPagina}"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+
+                <CollectionView x:Name="lvBalancos" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BalancoResumoItem">
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,12" Padding="16">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBalancoTocado"
+                                                          CommandParameter="{Binding Id}"/>
+                                </Border.GestureRecognizers>
+                                <Grid RowDefinitions="Auto, Auto, Auto"
+                                      ColumnDefinitions="Auto, *, Auto"
+                                      RowSpacing="8"
+                                      ColumnSpacing="12">
+
+                                    <!-- Chip de tipo -->
+                                    <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="1"
+                                            BackgroundColor="{Binding CorTipo}"
+                                            WidthRequest="36" HeightRequest="36"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="18"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding TipoChip}"
+                                               TextColor="White"
+                                               FontAttributes="Bold"
+                                               FontSize="15"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Border>
+
+                                    <!-- Título + datas -->
+                                    <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding Titulo}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"/>
+                                        <Label Text="{Binding DataPlanilhamento}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"/>
+                                    </VerticalStackLayout>
+
+                                    <!-- Selo de balanceamento -->
+                                    <Border Grid.Row="0" Grid.Column="2"
+                                            BackgroundColor="{Binding CorStatus}"
+                                            Padding="10,4"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="End"
+                                            StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="12"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding SeloStatus}"
+                                               TextColor="White"
+                                               FontSize="11"
+                                               FontAttributes="Bold"/>
+                                    </Border>
+
+                                    <!-- Valores -->
+                                    <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="20">
+                                        <Label Text="{Binding LinhaAtivo}"
+                                               FontSize="13"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"/>
+                                        <Label Text="{Binding LinhaPassivo}"
+                                               FontSize="13"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"/>
+                                    </HorizontalStackLayout>
+
+                                    <!-- Origem + contas -->
+                                    <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Spacing="20">
+                                        <Label Text="{Binding LinhaContas}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"/>
+                                        <Label Text="{Binding Origem}"
+                                               FontSize="12"
+                                               FontAttributes="Italic"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"/>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </ScrollView>
+
+        <!-- Rodapé -->
+        <Border Grid.Row="2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
+                Padding="24,12">
+            <Button Text="Fechar"
+                    Style="{StaticResource SecondaryButton}"
+                    HorizontalOptions="End"
+                    WidthRequest="120"
+                    Clicked="OnFecharClicado"/>
+        </Border>
+
+    </Grid>
+</ContentPage>

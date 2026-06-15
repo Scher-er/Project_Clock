@@ -1,5 +1,6 @@
 using BalancoPatrimonial.App.Interfaces;
 using BalancoPatrimonial.App.Models;
+using BalancoPatrimonial.App.Models.Enums;
 
 namespace BalancoPatrimonial.App.Services;
 
@@ -12,13 +13,19 @@ namespace BalancoPatrimonial.App.Services;
 public interface IBalancoService : IService
 {
     /// <summary>Persiste um balanço novo (com todas as contas) em uma transação.</summary>
-    Task<ResultadoOperacao<int>> SalvarAsync(Balanco balanco);
+    Task<ResultadoOperacao<int>> SalvarAsync(Balanco balanco, bool substituir = false);
+
+    /// <summary>Indica se já existe um balanço ativo com empresa+ano+tipo.</summary>
+    Task<bool> ExisteAsync(int empresaId, int anoExercicio, TipoBalanco tipo);
 
     /// <summary>Carrega balanço completo com contas e plano de contas.</summary>
     Task<ResultadoOperacao<Balanco>> CarregarAsync(int balancoId);
 
     /// <summary>Exclui balanço (cascateia conta_balanco automaticamente no MySQL).</summary>
     Task<ResultadoOperacao<bool>> ExcluirAsync(int balancoId);
+
+    /// <summary>Atualiza um balanço existente substituindo suas contas.</summary>
+    Task<ResultadoOperacao<bool>> AtualizarComContasAsync(Balanco balanco);
 
     /// <summary>
     /// Lista todos os balanços de uma empresa (resumo, sem contas).

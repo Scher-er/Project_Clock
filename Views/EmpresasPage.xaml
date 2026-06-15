@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BalancoPatrimonial.App.Views.Items"
+             x:Class="BalancoPatrimonial.App.Views.EmpresasPage"
+             Title="Empresas">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Importar JSON" Clicked="OnImportarJsonClicado"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto, Auto, *" Padding="24" RowSpacing="16">
+
+        <!-- Cabeçalho -->
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="Empresas" Style="{StaticResource TituloPagina}"/>
+            <Label x:Name="lblSubtitulo"
+                   Text="Carregando..."
+                   Style="{StaticResource SubtituloPagina}"/>
+        </VerticalStackLayout>
+
+        <!-- Barra de filtros -->
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="12">
+                <Border Grid.Column="0"
+                        Stroke="{AppThemeBinding Light={StaticResource Border}, Dark={StaticResource BorderDark}}"
+                        StrokeThickness="1"
+                        Padding="10,0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="6"/>
+                    </Border.StrokeShape>
+                    <Entry x:Name="txtPesquisa"
+                           Placeholder="Pesquisar por nome, CNPJ ou grupo econômico..."
+                           ReturnType="Search"
+                           Completed="OnPesquisarClicado"/>
+                </Border>
+                <Button Grid.Column="1"
+                        Text="Filtrar"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnPesquisarClicado"/>
+                <Button Grid.Column="2"
+                        Text="+ Nova"
+                        Style="{StaticResource PrimaryButton}"
+                        Clicked="OnNovaEmpresaClicado"/>
+            </Grid>
+        </Border>
+
+        <!-- Lista -->
+        <RefreshView Grid.Row="2"
+                     x:Name="refreshView"
+                     Refreshing="OnRecarregar">
+
+            <Grid>
+                <!-- Estado vazio -->
+                <Border x:Name="painelVazio"
+                        Style="{StaticResource Card}"
+                        IsVisible="false">
+                    <VerticalStackLayout Spacing="12"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center">
+                        <Label Text="" FontSize="48" HorizontalOptions="Center"/>
+                        <Label x:Name="lblMensagemVazia"
+                               Text="Nenhuma empresa cadastrada."
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Use o botão '+ Nova' para cadastrar a primeira."
+                               Style="{StaticResource SubtituloPagina}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- CollectionView -->
+                <CollectionView x:Name="lvEmpresas"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EmpresaListItem">
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="Excluir"
+                                                   BackgroundColor="{StaticResource Danger}"
+                                                   Invoked="OnExcluirInvocado"
+                                                   CommandParameter="{Binding Id}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+
+                                <Border Style="{StaticResource Card}"
+                                        Margin="0,0,0,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Tapped="OnEmpresaTocada"
+                                            CommandParameter="{Binding Id}"/>
+                                    </Border.GestureRecognizers>
+
+                                    <Grid RowDefinitions="Auto, Auto, Auto, Auto"
+                                          ColumnDefinitions="*, Auto"
+                                          RowSpacing="6">
+
+                                        <!-- Razão social + rating -->
+                                        <Label Grid.Row="0" Grid.Column="0"
+                                               Text="{Binding RazaoSocial}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"/>
+                                        <Border Grid.Row="0" Grid.Column="1"
+                                                BackgroundColor="{Binding CorRating}"
+                                                Padding="10,4"
+                                                IsVisible="{Binding TemRating}">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="12"/>
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding Rating}"
+                                                   TextColor="White"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"/>
+                                        </Border>
+
+                                        <!-- CNPJ + UF + Grupo -->
+                                        <Label Grid.Row="1" Grid.ColumnSpan="2"
+                                               Text="{Binding LinhaIdentificacao}"
+                                               FontSize="13"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"/>
+
+                                        <!-- Setor + Limite -->
+                                        <Label Grid.Row="2" Grid.ColumnSpan="2"
+                                               Text="{Binding LinhaSetorLimite}"
+                                               FontSize="13"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"/>
+
+                                        <!-- Balanços + botão de visualização -->
+                                        <Grid Grid.Row="3" Grid.ColumnSpan="2"
+                                              ColumnDefinitions="*, Auto"
+                                              ColumnSpacing="8">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding LinhaBalancos}"
+                                                   FontSize="12"
+                                                   FontAttributes="Italic"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{StaticResource Primary}"/>
+                                            <Button Grid.Column="1"
+                                                    Text="Ver Balanços"
+                                                    FontSize="12"
+                                                    HeightRequest="32"
+                                                    Padding="12,0"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    Clicked="OnVerBalancosClicado"
+                                                    CommandParameter="{Binding Id}"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </RefreshView>
+    </Grid>
+</ContentPage>

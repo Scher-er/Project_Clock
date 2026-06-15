@@ -15,6 +15,9 @@ public interface IBalancoDao : IDao<Balanco>
     /// <summary>Existe um balanço pra essa combinação? Útil pra validar duplicidade.</summary>
     Task<bool> ExisteAsync(int empresaId, int anoExercicio, TipoBalanco tipo);
 
+    /// <summary>Id do balanço ativo (ativado=1) com empresa+ano+tipo, ou null.</summary>
+    Task<int?> BuscarIdAtivoAsync(int empresaId, int anoExercicio, TipoBalanco tipo);
+
     /// <summary>Detecta se um PDF já foi importado anteriormente (pelo hash MD5/SHA1).</summary>
     Task<Balanco?> BuscarPorHashPdfAsync(string hash);
 
@@ -23,4 +26,7 @@ public interface IBalancoDao : IDao<Balanco>
     /// Garante consistência (não fica "balanço sem contas" se algo falhar).
     /// </summary>
     Task<int> InserirComContasAsync(Balanco balanco);
+
+    /// <summary>Atualiza header + substitui contas (transacional).</summary>
+    Task<bool> AtualizarComContasAsync(Balanco balanco);
 }

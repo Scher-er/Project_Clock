@@ -17,10 +17,8 @@ public class BalancoController : IBalancoController
         => _service.SalvarAsync(entidade);
 
     public Task<ResultadoOperacao<bool>> AtualizarAsync(Balanco entidade)
-        // Balanços, por regra de negócio, não são alterados depois de salvos.
-        // Se precisar corrigir, exclui e refaz. Mas mantemos o método pra cumprir IController<T>.
-        => Task.FromResult(ResultadoOperacao<bool>.Falha(
-            "Balanços não podem ser alterados após salvos. Exclua e refaça o planilhamento."));
+        // Edição de um balanço salvo: substitui o cabeçalho e todas as contas.
+        => _service.AtualizarComContasAsync(entidade);
 
     public Task<ResultadoOperacao<bool>> ExcluirAsync(int id)
         => _service.ExcluirAsync(id);

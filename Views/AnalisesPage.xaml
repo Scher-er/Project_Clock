@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+             x:Class="BalancoPatrimonial.App.Views.AnalisesPage"
+             Title="Análises">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+
+            <!-- Cabeçalho -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Análises" Style="{StaticResource TituloPagina}"/>
+                <Label x:Name="lblSubtitulo"
+                       Text="Selecione uma empresa para ver evolução e indicadores."
+                       Style="{StaticResource SubtituloPagina}"/>
+            </VerticalStackLayout>
+
+            <!-- Seletor de empresa -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Empresa" Style="{StaticResource LabelCampo}"/>
+                    <Border Style="{StaticResource PickerBorder}">
+                        <Picker x:Name="pkEmpresa"
+                                ItemDisplayBinding="{Binding RazaoSocial}"
+                                SelectedIndexChanged="OnEmpresaSelecionada"/>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Estado vazio -->
+            <Border x:Name="painelVazio"
+                    Style="{StaticResource Card}"
+                    IsVisible="True">
+                <VerticalStackLayout Spacing="12"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center">
+                    <Label Text="" FontSize="48" HorizontalOptions="Center"/>
+                    <Label x:Name="lblMensagemVazia"
+                           Text="Selecione uma empresa acima."
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Pra ver análises, a empresa precisa de pelo menos um balanço planilhado."
+                           Style="{StaticResource SubtituloPagina}"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Conteúdo da análise (oculto até carregar) -->
+            <VerticalStackLayout x:Name="painelAnalise"
+                                 Spacing="20"
+                                 IsVisible="False">
+
+                <!-- KPIs do último balanço -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Resumo do Último Balanço"
+                               FontAttributes="Bold"
+                               FontSize="15"/>
+                        <Grid ColumnDefinitions="*, *, *, *"
+                              RowDefinitions="Auto, Auto"
+                              ColumnSpacing="16"
+                              RowSpacing="6">
+
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                                <Label Text="ANO" Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiAno" Text="—"
+                                       FontSize="20" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                                <Label Text="ATIVO TOTAL" Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiAtivo" Text="—"
+                                       FontSize="16" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="2">
+                                <Label Text="PASSIVO+PL" Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiPassivo" Text="—"
+                                       FontSize="16" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="3" Spacing="2">
+                                <Label Text="PL" Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiPL" Text="—"
+                                       FontSize="16" FontAttributes="Bold"
+                                       TextColor="{StaticResource Primary}"/>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2">
+                                <Label Text="LIQ. CORRENTE" Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiLiquidez" Text="—"
+                                       FontSize="14" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2">
+                                <Label Text="ENDIV. GERAL" Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiEndividamento" Text="—"
+                                       FontSize="14" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="2" Spacing="2">
+                                <Label Text="COMP. ENDIV." Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiComposicao" Text="—"
+                                       FontSize="14" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="3" Spacing="2">
+                                <Label Text="IMOB. PL" Style="{StaticResource LabelCampo}"/>
+                                <Label x:Name="lblKpiImobilizacao" Text="—"
+                                       FontSize="14" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Gráfico 1: evolução -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Evolução do Balanço"
+                               FontAttributes="Bold"
+                               FontSize="15"/>
+                        <Label Text="Ativo Total, Passivo Total e Patrimônio Líquido por ano. Valores em R$."
+                               Style="{StaticResource SubtituloPagina}"/>
+                        <lvc:CartesianChart x:Name="chartEvolucao"
+                                            HeightRequest="320"
+                                            LegendPosition="Bottom"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Gráficos 2 e 3: composição -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
+                    <Border Grid.Column="0" Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label x:Name="lblTituloComposicaoAtivo"
+                                   Text="Composição do Ativo"
+                                   FontAttributes="Bold"
+                                   FontSize="14"/>
+                            <lvc:PieChart x:Name="chartCompAtivo"
+                                          HeightRequest="280"
+                                          LegendPosition="Bottom"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label x:Name="lblTituloComposicaoPassivo"
+                                   Text="Origem dos Recursos"
+                                   FontAttributes="Bold"
+                                   FontSize="14"/>
+                            <lvc:PieChart x:Name="chartCompPassivoPL"
+                                          HeightRequest="280"
+                                          LegendPosition="Bottom"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Indicadores ano-a-ano (gráfico de barras) -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Evolução de Índices por Ano"
+                               FontAttributes="Bold"
+                               FontSize="15"/>
+                        <Label Text="AC/PC — quanto a empresa pode pagar de dívidas curtas com seus ativos circulantes. Acima de 1,0 = saudável."
+                               Style="{StaticResource SubtituloPagina}"/>
+                        <lvc:CartesianChart x:Name="chartLiquidez"
+                                            HeightRequest="280"
+                                            LegendPosition="Hidden"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Avaliação de risco + indicadores detalhados + análise V/H
+                     (montados dinamicamente no code-behind) -->
+                <VerticalStackLayout x:Name="painelRiscoDetalhes" Spacing="20"/>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

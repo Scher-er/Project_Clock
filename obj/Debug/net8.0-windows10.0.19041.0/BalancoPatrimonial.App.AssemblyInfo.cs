@@ -11,10 +11,14 @@
 using System;
 using System.Reflection;
 
+[assembly: System.Reflection.AssemblyMetadataAttribute("Microsoft.Maui.ApplicationModel.AppInfo.PackageName", "com.bancoexemplo.balancopatrimonial")]
+[assembly: System.Reflection.AssemblyMetadataAttribute("Microsoft.Maui.ApplicationModel.AppInfo.PublisherName", "Banco Exemplo")]
+[assembly: System.Reflection.AssemblyMetadataAttribute("Microsoft.Maui.ApplicationModel.AppInfo.Name", "Balanço Patrimonial")]
+[assembly: System.Reflection.AssemblyMetadataAttribute("Microsoft.Maui.ApplicationModel.AppInfo.Version", "1.0.0.0")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("BalancoPatrimonial.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+f58ca43c0acf20306ea315ad1a91188b058afbd6")]
 [assembly: System.Reflection.AssemblyProductAttribute("BalancoPatrimonial.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BalancoPatrimonial.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,13 +1,18 @@
 using BalancoPatrimonial.App.Controllers;
 using BalancoPatrimonial.App.DAO;
 using BalancoPatrimonial.App.DAO.Interfaces;
-using BalancoPatrimonial.App.DAO.MongoDB;
+using BalancoPatrimonial.App.DAO.Mongo;
 using BalancoPatrimonial.App.DAO.MySQL;
 using BalancoPatrimonial.App.DAO.SQLite;
 using BalancoPatrimonial.App.Services;
 using BalancoPatrimonial.App.Views;
 using CommunityToolkit.Maui;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Maui;
 using Microsoft.Extensions.Logging;
+using SkiaSharp;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace BalancoPatrimonial.App;
 
@@ -15,15 +20,28 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        // Declara uso da Community License do QuestPDF (obrigatório por contrato da lib).
+        // O projeto é academico/sem fins lucrativos — qualifica pra license community.
+        // Ver: https://www.questpdf.com/license/
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
+        // Configura paleta de cores e fonte padrão do LiveCharts2.
+        // Em rc5+, isso é feito separado do builder via LiveCharts.Configure().
+        LiveCharts.Configure(config => config
+            .HasGlobalSKTypeface(SKTypeface.FromFamilyName("Segoe UI"))
+            .AddDarkTheme()
+            .AddLightTheme());
+
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
-            .ConfigureFonts(fonts =>
-            {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            });
+            .UseSkiaSharp()        // SkiaSharp DEVE vir chained em UseMauiApp
+            .UseLiveCharts();      // LiveCharts rc5+ exige .UseLiveCharts() chained (sem argumento)
+
+        // Nota: removi .ConfigureFonts() porque o app usa a fonte default do
+        // sistema (Segoe UI no Windows). Pra adicionar fontes customizadas,
+        // coloque o .ttf em Resources/Fonts/ e re-adicione a chamada aqui.
 
 #if DEBUG
         builder.Logging.AddDebug();
@@ -58,6 +76,8 @@ public static class MauiProgram
 
         // MongoDB
         services.AddSingleton<ILogDao, MongoLogDao>();   // singleton porque mantém collection cacheada
+        services.AddSingleton<IAnaliseIaDao, MongoAnaliseIaDao>();
+        services.AddTransient<IDreDao, MySqlDreDao>();
 
         // ───── Sessão e Services ─────
         services.AddSingleton<ISessaoUsuario, SessaoUsuario>();
@@ -67,19 +87,32 @@ public static class MauiProgram
         services.AddTransient<IEmpresaService, EmpresaService>();
         services.AddTransient<IBalancoService, BalancoService>();
         services.AddTransient<IListagensService, ListagensService>();
+        services.AddTransient<IPdfParserService, PdfParserService>();
+        services.AddSingleton<IAiSettingsService, AiSettingsService>();
+        services.AddTransient<IPdfAiAnalyzerService, GeminiPdfAnalyzerService>();
+        services.AddTransient<IExportacaoService, ExportacaoService>();
+        services.AddTransient<IAnaliseService, AnaliseService>();
 
         // ───── Controllers ─────
         services.AddTransient<ILoginController, LoginController>();
         services.AddTransient<IEmpresaController, EmpresaController>();
         services.AddTransient<IBalancoController, BalancoController>();
         services.AddTransient<ILogController, LogController>();
+        services.AddTransient<IPlanilhamentoController, PlanilhamentoController>();
+        services.AddTransient<IExportacaoController, ExportacaoController>();
+        services.AddTransient<IAnaliseController, AnaliseController>();
 
         // ───── Views ─────
         services.AddTransient<LoginPage>();
         services.AddTransient<PlanilhamentoPage>();
         services.AddTransient<EmpresasPage>();
         services.AddTransient<CadastroEmpresaPage>();
+        services.AddTransient<BalancosEmpresaPage>();
+        services.AddTransient<DetalheBalancoPage>();
+        services.AddTransient<RevisaoImportacaoPage>();
         services.AddTransient<LogsPage>();
         services.AddTransient<AreaTestesPage>();
+        services.AddTransient<AnalisesPage>();
+        services.AddTransient<ComparacaoPage>();
     }
 }

@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:BalancoPatrimonial.App.Models"
+             xmlns:items="clr-namespace:BalancoPatrimonial.App.Views.Items"
              x:Class="BalancoPatrimonial.App.Views.CadastroEmpresaPage"
              Title="Cadastro de Empresa">
 
@@ -55,8 +56,10 @@
 
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Tipo da empresa" Style="{StaticResource LabelCampo}"/>
-                        <Picker x:Name="pkTipo"
-                                ItemDisplayBinding="{Binding Nome}"/>
+                        <Border Style="{StaticResource PickerBorder}">
+                            <Picker x:Name="pkTipo"
+                                    ItemDisplayBinding="{Binding Nome}"/>
+                        </Border>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>
@@ -71,7 +74,9 @@
                     <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
                         <VerticalStackLayout Grid.Column="0" Spacing="4">
                             <Label Text="Rating" Style="{StaticResource LabelCampo}"/>
-                            <Picker x:Name="pkRating"/>
+                            <Border Style="{StaticResource PickerBorder}">
+                                <Picker x:Name="pkRating"/>
+                            </Border>
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="4">
                             <Label Text="Limite de crédito (R$)" Style="{StaticResource LabelCampo}"/>
@@ -83,8 +88,10 @@
 
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Grupo econômico" Style="{StaticResource LabelCampo}"/>
-                        <Picker x:Name="pkGrupo"
-                                ItemDisplayBinding="{Binding Nome}"/>
+                        <Border Style="{StaticResource PickerBorder}">
+                            <Picker x:Name="pkGrupo"
+                                    ItemDisplayBinding="{Binding Nome}"/>
+                        </Border>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>
@@ -126,6 +133,104 @@
                                            FontSize="14"
                                            VerticalOptions="Center"/>
                                 </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Balanços planilhados (só aparece em modo edição) -->
+            <Border x:Name="cardBalancos"
+                    Style="{StaticResource Card}"
+                    IsVisible="False">
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="Balanços planilhados"
+                               FontAttributes="Bold"
+                               FontSize="15"/>
+                        <Label Grid.Column="1"
+                               x:Name="lblQtdBalancos"
+                               Text="0"
+                               Style="{StaticResource SubtituloPagina}"/>
+                    </Grid>
+
+                    <Label Text="Cada balanço pode ser exportado em Excel (planilha contábil), PDF (relatório executivo) ou JSON (integração com outros sistemas)."
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <CollectionView x:Name="lvBalancos">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="items:BalancoListItem">
+                                <Border Stroke="{AppThemeBinding Light={StaticResource Border}, Dark={StaticResource BorderDark}}"
+                                        StrokeThickness="1"
+                                        Padding="12"
+                                        Margin="0,0,0,8">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6"/>
+                                    </Border.StrokeShape>
+                                    <Grid RowDefinitions="Auto, Auto"
+                                          ColumnDefinitions="Auto, *, Auto"
+                                          ColumnSpacing="12"
+                                          RowSpacing="6">
+
+                                        <!-- Linha 1: identificação -->
+                                        <Label Grid.Row="0" Grid.Column="0"
+                                               Text="{Binding Ano}"
+                                               FontSize="22"
+                                               FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                               VerticalOptions="Center"/>
+
+                                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                                            <Border BackgroundColor="{Binding CorBadgeTipo}"
+                                                    Padding="8,2"
+                                                    HorizontalOptions="Start">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="4"/>
+                                                </Border.StrokeShape>
+                                                <Label Text="{Binding TipoTexto}"
+                                                       TextColor="White"
+                                                       FontSize="10"
+                                                       FontAttributes="Bold"/>
+                                            </Border>
+                                            <Label Text="{Binding DataPlanilhamento, StringFormat='Planilhado em {0}'}"
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"/>
+                                        </VerticalStackLayout>
+
+                                        <Label Grid.Row="0" Grid.Column="2"
+                                               Text="{Binding IconeOrigem}"
+                                               FontSize="20"
+                                               VerticalOptions="Center"/>
+
+                                        <!-- Linha 2: botões de exportação -->
+                                        <Grid Grid.Row="1" Grid.ColumnSpan="3"
+                                              ColumnDefinitions="*, *, *"
+                                              ColumnSpacing="6">
+                                            <Button Grid.Column="0"
+                                                    Text="Excel"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    HeightRequest="36"
+                                                    FontSize="13"
+                                                    Clicked="OnExportarExcelClicado"
+                                                    CommandParameter="{Binding Id}"/>
+                                            <Button Grid.Column="1"
+                                                    Text="PDF"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    HeightRequest="36"
+                                                    FontSize="13"
+                                                    Clicked="OnExportarPdfClicado"
+                                                    CommandParameter="{Binding Id}"/>
+                                            <Button Grid.Column="2"
+                                                    Text="JSON"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    HeightRequest="36"
+                                                    FontSize="13"
+                                                    Clicked="OnExportarJsonClicado"
+                                                    CommandParameter="{Binding Id}"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>

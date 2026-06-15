@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BalancoPatrimonial.App.Views.ComparacaoPage"
+             Title="Comparar Empresas">
+
+    <Grid RowDefinitions="Auto, *" Padding="0">
+
+        <Border Grid.Row="0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
+                Padding="24,16">
+            <VerticalStackLayout Spacing="12">
+                <Label Text="Comparar Empresas" Style="{StaticResource TituloPagina}"/>
+                <Label Text="Selecione duas empresas para comparar indicadores lado a lado (último balanço de cada)."
+                       Style="{StaticResource SubtituloPagina}"/>
+
+                <Grid ColumnDefinitions="*, *, Auto" ColumnSpacing="12">
+                    <Border Grid.Column="0" Style="{StaticResource PickerBorder}">
+                        <Picker x:Name="pkEmpresaA" Title="Empresa A"
+                                BackgroundColor="Transparent" VerticalOptions="Fill"
+                                ItemDisplayBinding="{Binding RazaoSocial}"/>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource PickerBorder}">
+                        <Picker x:Name="pkEmpresaB" Title="Empresa B"
+                                BackgroundColor="Transparent" VerticalOptions="Fill"
+                                ItemDisplayBinding="{Binding RazaoSocial}"/>
+                    </Border>
+                    <Button Grid.Column="2" Text="Comparar"
+                            Style="{StaticResource PrimaryButton}"
+                            WidthRequest="120" HeightRequest="44"
+                            Clicked="OnCompararClicado"/>
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <ScrollView Grid.Row="1" Padding="24,12">
+            <VerticalStackLayout x:Name="layoutComparacao" Spacing="16">
+                <Label x:Name="lblVazio"
+                       Text="Escolha as duas empresas e toque em Comparar."
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

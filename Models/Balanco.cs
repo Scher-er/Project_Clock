@@ -64,8 +64,16 @@ public class Balanco
     public decimal PatrimonioLiquido => SomaPorCodigo("2.03");
     public decimal PassivoTotal => PassivoCirculante + PassivoNaoCirculante + PatrimonioLiquido;
 
+    /// <summary>
+    /// Soma todas as contas analíticas cujo código pertence à hierarquia do
+    /// código informado. Como apenas contas analíticas são persistidas (as
+    /// totalizadoras tipo "1", "2.03" não são salvas), a soma é feita por
+    /// PREFIXO: "1" soma 1.01.01, 1.01.02, 1.02.01...; "2.03" soma 2.03.01...
+    /// </summary>
     private decimal SomaPorCodigo(string codigoTotalizador)
         => Contas
-            .Where(c => c.ContaPadrao?.Codigo == codigoTotalizador)
+            .Where(c => c.ContaPadrao?.Codigo is string cod
+                        && (cod == codigoTotalizador
+                            || cod.StartsWith(codigoTotalizador + ".", StringComparison.Ordinal)))
             .Sum(c => c.Valor);
 }

@@ -1,3 +1,4 @@
+using BalancoPatrimonial.App.Services;
 using BalancoPatrimonial.App.Views;
 
 namespace BalancoPatrimonial.App;
@@ -15,6 +16,9 @@ public partial class App : Application
         InitializeComponent();
         Services = services;
 
+        // Aplica tema salvo (fire-and-forget — não bloqueia startup)
+        _ = AplicarTemaSalvoAsync();
+
         // Inicia na LoginPage. Após autenticar, a própria LoginPage troca pra AppShell.
         var loginPage = services.GetRequiredService<LoginPage>();
         MainPage = new NavigationPage(loginPage)
@@ -22,5 +26,25 @@ public partial class App : Application
             BarBackgroundColor = Color.FromArgb("#1F3A60"),
             BarTextColor = Colors.White
         };
+    }
+
+    /// <summary>
+    /// Lê o tema persistido no SQLite (via ConfiguracaoLocalService) e aplica
+    /// no app. Roda em background pra não atrasar a primeira renderização.
+    /// </summary>
+    private async Task AplicarTemaSalvoAsync()
+    {
+        try
+        {
+            var config = Services.GetService<IConfiguracaoLocalService>();
+            if (config is null) return;
+
+            var tema = await config.ObterTemaAsync();
+            UserAppTheme = tema == "escuro" ? AppTheme.Dark : AppTheme.Light;
+        }
+        catch
+        {
+            // Falha silenciosa — tema é cosmético, não pode quebrar o app
+        }
     }
 }

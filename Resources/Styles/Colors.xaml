@@ -2,30 +2,44 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Paleta principal — tons corporativos bancários -->
-    <Color x:Key="Primary">#1F3A60</Color>           <!-- azul escuro -->
-    <Color x:Key="PrimaryDark">#13243D</Color>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Paleta corporativa bancária. Minimalista, dois tons de azul + neutros.
+         Cores semânticas (Accent/Danger/Warning) são iguais nos dois temas.
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Paleta principal -->
+    <Color x:Key="Primary">#1F3A60</Color>           <!-- azul corporativo -->
+    <Color x:Key="PrimaryDark">#13243D</Color>       <!-- pra hover/pressed -->
     <Color x:Key="PrimaryLight">#3D5A87</Color>
-    <Color x:Key="Secondary">#C9A14A</Color>         <!-- dourado -->
+    <Color x:Key="Secondary">#C9A14A</Color>         <!-- dourado discreto -->
     <Color x:Key="Accent">#0E7C66</Color>            <!-- verde positivo -->
     <Color x:Key="Danger">#C0392B</Color>            <!-- vermelho negativo -->
     <Color x:Key="Warning">#E67E22</Color>
 
-    <!-- Superfícies -->
+    <!-- Superfícies (modo claro) -->
     <Color x:Key="Background">#F4F6F9</Color>
     <Color x:Key="Surface">#FFFFFF</Color>
+    <Color x:Key="SurfaceAlt">#FAFBFD</Color>
     <Color x:Key="SidebarBackground">#FFFFFF</Color>
     <Color x:Key="Border">#E1E5EB</Color>
+    <Color x:Key="BorderStrong">#C5CCD6</Color>
 
-    <!-- Texto -->
+    <!-- Texto (modo claro) -->
     <Color x:Key="TextPrimary">#1A1A1A</Color>
     <Color x:Key="TextSecondary">#5A6478</Color>
-    <Color x:Key="TextOnPrimary">#FFFFFF</Color>
     <Color x:Key="TextMuted">#8A93A6</Color>
+    <Color x:Key="TextOnPrimary">#FFFFFF</Color>
 
-    <!-- Modo escuro (Fase 7 — toggle salvo no SQLite) -->
+    <!-- Modo escuro — espelho completo das cores acima -->
     <Color x:Key="BackgroundDark">#0F1620</Color>
     <Color x:Key="SurfaceDark">#1A2330</Color>
+    <Color x:Key="SurfaceAltDark">#13202B</Color>
+    <Color x:Key="SidebarBackgroundDark">#13202B</Color>
+    <Color x:Key="BorderDark">#2A3441</Color>
+    <Color x:Key="BorderStrongDark">#3A4554</Color>
+
     <Color x:Key="TextPrimaryDark">#F0F2F5</Color>
+    <Color x:Key="TextSecondaryDark">#A8B0BF</Color>
+    <Color x:Key="TextMutedDark">#7A8595</Color>
 
 </ResourceDictionary>

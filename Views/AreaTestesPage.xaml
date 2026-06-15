@@ -16,7 +16,7 @@
             <!-- Testes de conexão -->
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="🔌 Testes de conexão"
+                    <Label Text="Testes de conexão"
                            FontAttributes="Bold"
                            FontSize="15"/>
                     <Label Text="Verifica se o app consegue se conectar a cada banco configurado."
@@ -42,7 +42,7 @@
             <!-- Geração de logs de teste -->
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="📋 Logs de demonstração"
+                    <Label Text="Logs de demonstração"
                            FontAttributes="Bold"
                            FontSize="15"/>
                     <Label Text="Gera eventos de exemplo para popular a tela de Logs (vão para MongoDB + TXT diário)."
@@ -54,10 +54,67 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Configuração da Google Gemini -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="Google Gemini"
+                               FontAttributes="Bold"
+                               FontSize="15"/>
+                        <Label Grid.Column="1"
+                               x:Name="lblStatusIa"
+                               Text="Não configurado"
+                               FontSize="11"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                    <Label Text="Integração com a API do Google Gemini para análise inteligente de PDFs de balanço. A chave fica armazenada criptografada no dispositivo (SecureStorage). Obtenha a chave em https://aistudio.google.com/apikey"
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="API Key (AIza...)" Style="{StaticResource LabelCampo}"/>
+                        <Entry x:Name="txtApiKey"
+                               IsPassword="True"
+                               Placeholder="Cole sua API key do Google AI Studio aqui"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Modelo" Style="{StaticResource LabelCampo}"/>
+                        <Border Style="{StaticResource PickerBorder}">
+                            <Picker x:Name="pkModeloIa" BackgroundColor="Transparent" VerticalOptions="Fill">
+                                <Picker.Items>
+                                    <x:String>gemini-3.5-flash</x:String>
+                                    <x:String>gemini-3.1-flash-lite</x:String>
+                                    <x:String>gemini-2.5-pro</x:String>
+                                    <x:String>gemini-2.5-flash</x:String>
+                                    <x:String>gemini-2.5-flash-lite</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
+                        <Button Grid.Column="0"
+                                Text="Salvar"
+                                Style="{StaticResource PrimaryButton}"
+                                Clicked="OnSalvarIaClicado"/>
+                        <Button Grid.Column="1"
+                                Text="Testar"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnTestarIaClicado"/>
+                        <Button Grid.Column="2"
+                                Text="️ Limpar"
+                                Style="{StaticResource SecondaryButton}"
+                                Clicked="OnLimparIaClicado"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Teste de balanceamento -->
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="🧮 Teste de balanceamento"
+                    <Label Text="Teste de balanceamento"
                            FontAttributes="Bold"
                            FontSize="15"/>
                     <Label Text="Constrói um balanço fictício e valida se Ativo = Passivo + PL."
@@ -76,12 +133,47 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Simulação completa de planilhamento -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Simulação de planilhamento"
+                           FontAttributes="Bold"
+                           FontSize="15"/>
+                    <Label Text="Roda um planilhamento completo de exemplo (sem persistir nada). Mostra todas as etapas: hierarquia de contas → preenchimento → cálculo de totalizadoras → validação → cálculo de indicadores."
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <Button Text="▶ Executar simulação completa"
+                            Style="{StaticResource PrimaryButton}"
+                            Clicked="OnSimularPlanilhamentoClicado"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Tema -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Aparência"
+                           FontAttributes="Bold"
+                           FontSize="15"/>
+                    <Label Text="A preferência é salva no SQLite e aplicada na próxima abertura."
+                           Style="{StaticResource SubtituloPagina}"/>
+
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="12">
+                        <Label Grid.Column="0"
+                               Text="Tema escuro"
+                               VerticalOptions="Center"/>
+                        <Switch Grid.Column="1"
+                                x:Name="swTemaEscuro"
+                                Toggled="OnTemaToggled"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Resultados -->
             <Border Style="{StaticResource Card}" BackgroundColor="#0F1A2D">
                 <VerticalStackLayout Spacing="8">
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Grid.Column="0"
-                               Text="📤 Saída"
+                               Text="Saída"
                                FontAttributes="Bold"
                                FontSize="14"
                                TextColor="White"/>

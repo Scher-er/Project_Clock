@@ -65,7 +65,7 @@ public class MySqlEmpresaDao : IEmpresaDao
     public async Task<bool> ExcluirAsync(int id)
     {
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand("DELETE FROM empresa WHERE id=@id", conn);
+        await using var cmd = new MySqlCommand("UPDATE empresa SET ativado=0 WHERE id=@id", conn);
         cmd.Parameters.AddWithValue("@id", id);
         return await cmd.ExecuteNonQueryAsync() > 0;
     }
@@ -126,7 +126,7 @@ public class MySqlEmpresaDao : IEmpresaDao
     {
         var lista = new List<Empresa>();
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand("SELECT * FROM empresa ORDER BY razao_social", conn);
+        await using var cmd = new MySqlCommand("SELECT * FROM empresa WHERE ativado=1 ORDER BY razao_social", conn);
         await using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync()) lista.Add(Mapear(r));
         return lista;
@@ -140,6 +140,7 @@ public class MySqlEmpresaDao : IEmpresaDao
             SELECT e.*, g.nome AS grupo_nome
               FROM empresa e
               LEFT JOIN grupo_economico g ON g.id = e.grupo_economico_id
+             WHERE e.ativado = 1
              ORDER BY e.razao_social";
 
         var empresas = new List<Empresa>();
@@ -181,10 +182,11 @@ public class MySqlEmpresaDao : IEmpresaDao
             SELECT DISTINCT e.*, g.nome AS grupo_nome
               FROM empresa e
               LEFT JOIN grupo_economico g ON g.id = e.grupo_economico_id
-             WHERE e.razao_social  LIKE @t
+             WHERE e.ativado = 1
+               AND (e.razao_social  LIKE @t
                 OR e.nome_fantasia LIKE @t
                 OR e.cnpj          LIKE @t
-                OR g.nome          LIKE @t
+                OR g.nome          LIKE @t)
              ORDER BY e.razao_social
              LIMIT 200";
 
