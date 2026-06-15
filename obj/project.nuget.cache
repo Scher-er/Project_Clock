@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "woQr8GRfepk=",
+  "dgSpecHash": "QrFfNsy49cs=",
   "success": true,
-  "projectFilePath": "C:\\Users\\scher\\OneDrive(OG)\\Documents\\GitHub\\Project_Clock\\BalancoPatrimonial.App.csproj",
+  "projectFilePath": "C:\\Users\\scher\\Downloads\\01_CODIGO_FONTE\\BalancoPatrimonial-COMPLETO\\BalancoPatrimonial\\BalancoPatrimonial.App\\BalancoPatrimonial.App.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\scher\\.nuget\\packages\\awssdk.core\\3.7.100.14\\awssdk.core.3.7.100.14.nupkg.sha512",
     "C:\\Users\\scher\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",

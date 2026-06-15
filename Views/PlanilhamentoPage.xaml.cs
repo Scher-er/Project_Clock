@@ -71,21 +71,24 @@ public partial class PlanilhamentoPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        // Empresas são recarregadas SEMPRE, pra refletir cadastros feitos em
+        // outras telas enquanto a página ficou viva no Shell.
+        await CarregarEmpresasAsync();
+
         if (_carregadoUmaVez) return;
-        await CarregarDadosIniciaisAsync();
+        await InicializarPlanoEPeriodoAsync();
         _carregadoUmaVez = true;
     }
 
-    private async Task CarregarDadosIniciaisAsync()
+    private async Task CarregarEmpresasAsync()
     {
-        // Empresas
         var rEmpresas = await _controller.ListarEmpresasAsync();
         if (rEmpresas.Sucesso && rEmpresas.Dados is not null)
-        {
             _empresas = rEmpresas.Dados.ToList();
-            // Não precisa setar ItemsSource — a busca filtra dinamicamente
-        }
+    }
 
+    private async Task InicializarPlanoEPeriodoAsync()
+    {
         // Plano de contas
         var rContas = await _controller.ListarPlanoDeContasAsync();
         if (rContas.Sucesso && rContas.Dados is not null)
@@ -828,6 +831,60 @@ public partial class PlanilhamentoPage : ContentPage
     // detecta/cadastra empresa, cria períodos, define tipos, preenche contas
     // ─────────────────────────────────────────────────────────
 
+    private void DefinirEmpresaSelecionada(Empresa empresa)
+    {
+        _empresaSelecionada = empresa;
+        _atualizandoTextoPorSelecao = true;
+        txtBuscaEmpresa.Text = empresa.RazaoSocial;
+        _atualizandoTextoPorSelecao = false;
+    }
+
+    /// <summary>
+    /// Cadastro rápido de empresa por pop-up (apenas nome e CNPJ). Usado quando a
+    /// IA consegue ler o balanço mas não identifica a empresa (ex.: CNPJ ausente
+    /// no PDF). Retorna a empresa cadastrada/encontrada, ou null se o usuário
+    /// cancelar. Em caso de erro de validação, deixa corrigir e tentar de novo.
+    /// </summary>
+    private async Task<Empresa?> CadastrarEmpresaRapidaAsync(
+        string? nomeSugerido, string? cnpjSugerido, TipoEmpresa tipo, string? uf)
+    {
+        var quer = await DisplayAlert("Empresa não identificada",
+            "A IA leu o balanço, mas não conseguiu identificar a empresa automaticamente. " +
+            "Deseja cadastrá-la agora informando nome e CNPJ?",
+            "Cadastrar", "Agora não");
+        if (!quer) return null;
+
+        while (true)
+        {
+            var nome = await DisplayPromptAsync("Cadastro rápido de empresa",
+                "Nome / Razão social:", accept: "Próximo", cancel: "Cancelar",
+                initialValue: nomeSugerido ?? string.Empty, maxLength: 200);
+            if (string.IsNullOrWhiteSpace(nome)) return null; // cancelou
+
+            var cnpj = await DisplayPromptAsync("Cadastro rápido de empresa",
+                "CNPJ (14 dígitos):", accept: "Cadastrar", cancel: "Cancelar",
+                initialValue: cnpjSugerido ?? string.Empty,
+                keyboard: Keyboard.Numeric, maxLength: 18);
+            if (cnpj is null) return null; // cancelou
+
+            var r = await _controller.BuscarOuCadastrarEmpresaAsync(nome.Trim(), cnpj.Trim(), tipo, uf);
+            if (r.Sucesso && r.Dados is not null)
+            {
+                DefinirEmpresaSelecionada(r.Dados);
+                if (_empresas.All(e => e.Id != r.Dados.Id))
+                    _empresas.Add(r.Dados); // reflete na busca local na hora
+                return r.Dados;
+            }
+
+            var tentar = await DisplayAlert("Não foi possível cadastrar",
+                r.Mensagem + "\n\nDeseja corrigir os dados e tentar de novo?",
+                "Tentar de novo", "Cancelar");
+            if (!tentar) return null;
+            nomeSugerido = nome;   // mantém o que já foi digitado
+            cnpjSugerido = cnpj;
+        }
+    }
+
     private async Task ImportarComIaAutomaticoAsync()
     {
         if (!await _controller.IaConfiguradaAsync())
@@ -903,15 +960,19 @@ public partial class PlanilhamentoPage : ContentPage
             string statusEmpresa;
             if (empresaR.Sucesso && empresaR.Dados is not null)
             {
-                _empresaSelecionada = empresaR.Dados;
-                _atualizandoTextoPorSelecao = true;
-                txtBuscaEmpresa.Text = empresaR.Dados.RazaoSocial;
-                _atualizandoTextoPorSelecao = false;
+                DefinirEmpresaSelecionada(empresaR.Dados);
                 statusEmpresa = empresaR.Mensagem ?? "Empresa definida.";
             }
             else
             {
-                statusEmpresa = $"Empresa NÃO cadastrada ({empresaR.Mensagem}). Selecione manualmente antes de salvar.";
+                // A IA leu o balanço mas não conseguiu cadastrar a empresa sozinha
+                // (quase sempre porque o CNPJ não estava legível no PDF).
+                // Oferece o cadastro rápido por pop-up (nome + CNPJ).
+                var cadastrada = await CadastrarEmpresaRapidaAsync(
+                    dados.RazaoSocial, dados.Cnpj, dados.TipoEmpresa, dados.UfAtuacao);
+                statusEmpresa = cadastrada is not null
+                    ? "Empresa cadastrada manualmente."
+                    : "Empresa não definida — selecione ou cadastre antes de salvar.";
             }
 
             // 2) Recarrega o plano de contas (a IA pode ter criado contas novas/ajuste)

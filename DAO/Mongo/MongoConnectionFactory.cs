@@ -23,7 +23,15 @@ public class MongoConnectionFactory : IMongoConnectionFactory
     public MongoConnectionFactory(DatabaseSettings settings)
     {
         _settings = settings;
-        _client = new Lazy<IMongoClient>(() => new MongoClient(_settings.MongoConnectionString));
+        _client = new Lazy<IMongoClient>(() =>
+        {
+            // Timeout curto: se o servidor Mongo não estiver no ar, falha em ~3s
+            // em vez dos 30s padrão — evita travar a UI a cada log.
+            var cfg = MongoClientSettings.FromConnectionString(_settings.MongoConnectionString);
+            cfg.ServerSelectionTimeout = TimeSpan.FromSeconds(3);
+            cfg.ConnectTimeout = TimeSpan.FromSeconds(3);
+            return new MongoClient(cfg);
+        });
     }
 
     public IMongoDatabase ObterDatabase()

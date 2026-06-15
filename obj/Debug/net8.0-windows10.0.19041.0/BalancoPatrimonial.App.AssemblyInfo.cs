@@ -18,7 +18,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BalancoPatrimonial.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+f58ca43c0acf20306ea315ad1a91188b058afbd6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("BalancoPatrimonial.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BalancoPatrimonial.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
