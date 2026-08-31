@@ -128,6 +128,19 @@
           "buildTransitive/CommunityToolkit.Mvvm.targets": {}
         }
       },
+      "Dapper/2.1.79": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/Dapper.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Dapper.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "DnsClient/1.6.1": {
         "type": "package",
         "dependencies": {
@@ -2113,6 +2126,27 @@
         "lib/netstandard2.1/CommunityToolkit.Mvvm.dll",
         "lib/netstandard2.1/CommunityToolkit.Mvvm.pdb",
         "lib/netstandard2.1/CommunityToolkit.Mvvm.xml"
+      ]
+    },
+    "Dapper/2.1.79": {
+      "sha512": "8YijbzgTfmqmQOnVNorYM6K++pxqnW3nJ4aC1sRHzxUA2CcuoJ9gsTem3kgBnPRMc38zZHl4Esb6hAezXIEEuw==",
+      "type": "package",
+      "path": "dapper/2.1.79",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Dapper.png",
+        "dapper.2.1.79.nupkg.sha512",
+        "dapper.nuspec",
+        "lib/net10.0/Dapper.dll",
+        "lib/net10.0/Dapper.xml",
+        "lib/net461/Dapper.dll",
+        "lib/net461/Dapper.xml",
+        "lib/net8.0/Dapper.dll",
+        "lib/net8.0/Dapper.xml",
+        "lib/netstandard2.0/Dapper.dll",
+        "lib/netstandard2.0/Dapper.xml",
+        "readme.md"
       ]
     },
     "DnsClient/1.6.1": {
@@ -6652,6 +6686,7 @@
       "ClosedXML >= 0.104.2",
       "CommunityToolkit.Maui >= 9.0.3",
       "CommunityToolkit.Mvvm >= 8.3.2",
+      "Dapper >= 2.1.79",
       "LiveChartsCore.SkiaSharpView.Maui >= 2.0.0-rc5.4",
       "Microsoft.Extensions.Logging.Debug >= 8.0.0",
       "Microsoft.Maui.Controls >= 8.0.100",
@@ -6671,11 +6706,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\scher\\Downloads\\01_CODIGO_FONTE\\BalancoPatrimonial-COMPLETO\\BalancoPatrimonial\\BalancoPatrimonial.App\\BalancoPatrimonial.App.csproj",
+      "projectUniqueName": "C:\\Users\\scher\\OneDrive(OG)\\Documents\\GitHub\\Project_Clock\\BalancoPatrimonial.App.csproj",
       "projectName": "BalancoPatrimonial.App",
-      "projectPath": "C:\\Users\\scher\\Downloads\\01_CODIGO_FONTE\\BalancoPatrimonial-COMPLETO\\BalancoPatrimonial\\BalancoPatrimonial.App\\BalancoPatrimonial.App.csproj",
+      "projectPath": "C:\\Users\\scher\\OneDrive(OG)\\Documents\\GitHub\\Project_Clock\\BalancoPatrimonial.App.csproj",
       "packagesPath": "C:\\Users\\scher\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\scher\\Downloads\\01_CODIGO_FONTE\\BalancoPatrimonial-COMPLETO\\BalancoPatrimonial\\BalancoPatrimonial.App\\obj\\",
+      "outputPath": "C:\\Users\\scher\\OneDrive(OG)\\Documents\\GitHub\\Project_Clock\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6732,6 +6767,10 @@
           "CommunityToolkit.Mvvm": {
             "target": "Package",
             "version": "[8.3.2, )"
+          },
+          "Dapper": {
+            "target": "Package",
+            "version": "[2.1.79, )"
           },
           "LiveChartsCore.SkiaSharpView.Maui": {
             "target": "Package",

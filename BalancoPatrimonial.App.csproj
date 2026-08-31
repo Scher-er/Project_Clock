@@ -52,6 +52,7 @@
 	<ItemGroup>
 		<!-- MAUI core. UseMaui=true automaticamente puxa Microsoft.Maui.Controls.Build.Tasks
 		     (responsável pelo source generator que cria Main). -->
+		<PackageReference Include="Dapper" Version="2.1.79" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.3" />
