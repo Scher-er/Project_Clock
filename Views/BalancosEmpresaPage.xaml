@@ -2,8 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:BalancoPatrimonial.App.Views.Items"
+             xmlns:viewmodels="clr-namespace:BalancoPatrimonial.App.ViewModels"
+             x:DataType="viewmodels:BalancosEmpresaViewModel"
              x:Class="BalancoPatrimonial.App.Views.BalancosEmpresaPage"
-             Title="Balanços da Empresa">
+             Title="{Binding Title}">
 
     <Grid RowDefinitions="Auto, *, Auto" Padding="0">
 
@@ -12,10 +14,8 @@
                 BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
                 Padding="24,16">
             <VerticalStackLayout Spacing="2">
-                <Label x:Name="lblTitulo" Text="Balanços" Style="{StaticResource TituloPagina}"/>
-                <Label x:Name="lblSubtitulo"
-                       Text="Carregando..."
-                       Style="{StaticResource SubtituloPagina}"/>
+                <Label Text="{Binding Title}" Style="{StaticResource TituloPagina}"/>
+                <Label Text="{Binding Subtitulo}" Style="{StaticResource SubtituloPagina}"/>
             </VerticalStackLayout>
         </Border>
 
@@ -23,11 +23,10 @@
         <ScrollView Grid.Row="1" Padding="24,12">
             <Grid>
                 <!-- Estado vazio -->
-                <VerticalStackLayout x:Name="painelVazio"
-                                     Spacing="8"
+                <VerticalStackLayout Spacing="8"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center"
-                                     IsVisible="False">
+                                     IsVisible="{Binding NaoTemBalancos}">
                     <Label Text="Nenhum balanço armazenado"
                            FontSize="16"
                            FontAttributes="Bold"
@@ -38,12 +37,14 @@
                            HorizontalTextAlignment="Center"/>
                 </VerticalStackLayout>
 
-                <CollectionView x:Name="lvBalancos" SelectionMode="None">
+                <CollectionView ItemsSource="{Binding Balancos}"
+                                IsVisible="{Binding TemBalancos}"
+                                SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:BalancoResumoItem">
                             <Border Style="{StaticResource Card}" Margin="0,0,0,12" Padding="16">
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnBalancoTocado"
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:BalancosEmpresaViewModel}}, Path=VerDetalhesCommand}"
                                                           CommandParameter="{Binding Id}"/>
                                 </Border.GestureRecognizers>
                                 <Grid RowDefinitions="Auto, Auto, Auto"
@@ -131,7 +132,7 @@
                     Style="{StaticResource SecondaryButton}"
                     HorizontalOptions="End"
                     WidthRequest="120"
-                    Clicked="OnFecharClicado"/>
+                    Command="{Binding FecharCommand}"/>
         </Border>
 
     </Grid>

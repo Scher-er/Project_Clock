@@ -3,19 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:BalancoPatrimonial.App.Models"
              xmlns:items="clr-namespace:BalancoPatrimonial.App.Views.Items"
+             xmlns:viewmodels="clr-namespace:BalancoPatrimonial.App.ViewModels"
+             x:DataType="viewmodels:CadastroEmpresaViewModel"
              x:Class="BalancoPatrimonial.App.Views.CadastroEmpresaPage"
-             Title="Cadastro de Empresa">
+             Title="{Binding Title}">
 
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="20">
 
             <!-- Cabeçalho -->
             <VerticalStackLayout Spacing="4">
-                <Label x:Name="lblTitulo"
-                       Text="Nova Empresa"
+                <Label Text="{Binding Title}"
                        Style="{StaticResource TituloPagina}"/>
-                <Label x:Name="lblSubtitulo"
-                       Text="Preencha os dados da empresa."
+                <Label Text="{Binding Subtitulo}"
                        Style="{StaticResource SubtituloPagina}"/>
             </VerticalStackLayout>
 
@@ -27,7 +27,7 @@
 
                     <VerticalStackLayout Spacing="4">
                         <Label Text="CNPJ *" Style="{StaticResource LabelCampo}"/>
-                        <Entry x:Name="txtCnpj"
+                        <Entry Text="{Binding Cnpj}"
                                Placeholder="00.000.000/0000-00"
                                Keyboard="Numeric"
                                MaxLength="18"/>
@@ -35,29 +35,30 @@
 
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Razão Social *" Style="{StaticResource LabelCampo}"/>
-                        <Entry x:Name="txtRazaoSocial" Placeholder="Nome jurídico da empresa"/>
+                        <Entry Text="{Binding RazaoSocial}" Placeholder="Nome jurídico da empresa"/>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Nome Fantasia" Style="{StaticResource LabelCampo}"/>
-                        <Entry x:Name="txtNomeFantasia" Placeholder="Nome comercial"/>
+                        <Entry Text="{Binding NomeFantasia}" Placeholder="Nome comercial"/>
                     </VerticalStackLayout>
 
                     <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
                         <VerticalStackLayout Grid.Column="0" Spacing="4">
                             <Label Text="UF" Style="{StaticResource LabelCampo}"/>
-                            <Entry x:Name="txtUf" Placeholder="SP" MaxLength="2"/>
+                            <Entry Text="{Binding Uf}" Placeholder="SP" MaxLength="2"/>
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="4">
                             <Label Text="Local de atuação" Style="{StaticResource LabelCampo}"/>
-                            <Entry x:Name="txtLocal" Placeholder="Nacional / Regional / Sudeste..."/>
+                            <Entry Text="{Binding LocalAtuacao}" Placeholder="Nacional / Regional / Sudeste..."/>
                         </VerticalStackLayout>
                     </Grid>
 
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Tipo da empresa" Style="{StaticResource LabelCampo}"/>
                         <Border Style="{StaticResource PickerBorder}">
-                            <Picker x:Name="pkTipo"
+                            <Picker ItemsSource="{Binding Tipos}"
+                                    SelectedItem="{Binding TipoSelecionado}"
                                     ItemDisplayBinding="{Binding Nome}"/>
                         </Border>
                     </VerticalStackLayout>
@@ -75,12 +76,13 @@
                         <VerticalStackLayout Grid.Column="0" Spacing="4">
                             <Label Text="Rating" Style="{StaticResource LabelCampo}"/>
                             <Border Style="{StaticResource PickerBorder}">
-                                <Picker x:Name="pkRating"/>
+                                <Picker ItemsSource="{Binding Ratings}"
+                                        SelectedItem="{Binding RatingSelecionado}"/>
                             </Border>
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="4">
                             <Label Text="Limite de crédito (R$)" Style="{StaticResource LabelCampo}"/>
-                            <Entry x:Name="txtLimite"
+                            <Entry Text="{Binding LimiteCredito}"
                                    Placeholder="0,00"
                                    Keyboard="Numeric"/>
                         </VerticalStackLayout>
@@ -89,7 +91,8 @@
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Grupo econômico" Style="{StaticResource LabelCampo}"/>
                         <Border Style="{StaticResource PickerBorder}">
-                            <Picker x:Name="pkGrupo"
+                            <Picker ItemsSource="{Binding Grupos}"
+                                    SelectedItem="{Binding GrupoSelecionado}"
                                     ItemDisplayBinding="{Binding Nome}"/>
                         </Border>
                     </VerticalStackLayout>
@@ -106,8 +109,7 @@
                                FontAttributes="Bold"
                                FontSize="15"/>
                         <Label Grid.Column="1"
-                               x:Name="lblContagemSetores"
-                               Text="0 selecionados"
+                               Text="{Binding ContagemSetores}"
                                Style="{StaticResource SubtituloPagina}"/>
                     </Grid>
 
@@ -115,9 +117,9 @@
                            Style="{StaticResource SubtituloPagina}"/>
 
                     <!-- Lista de setores com checkbox -->
-                    <CollectionView x:Name="lvSetores"
+                    <CollectionView ItemsSource="{Binding Setores}"
+                                    SelectedItems="{Binding SetoresSelecionados}"
                                     SelectionMode="Multiple"
-                                    SelectionChanged="OnSetorSelectionChanged"
                                     HeightRequest="220">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:SetorAtividade">
@@ -140,9 +142,9 @@
             </Border>
 
             <!-- Balanços planilhados (só aparece em modo edição) -->
-            <Border x:Name="cardBalancos"
-                    Style="{StaticResource Card}"
-                    IsVisible="False">
+            <!-- Balanços planilhados (só aparece em modo edição) -->
+            <Border Style="{StaticResource Card}"
+                    IsVisible="{Binding TemBalancos}">
                 <VerticalStackLayout Spacing="14">
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Grid.Column="0"
@@ -150,15 +152,14 @@
                                FontAttributes="Bold"
                                FontSize="15"/>
                         <Label Grid.Column="1"
-                               x:Name="lblQtdBalancos"
-                               Text="0"
+                               Text="{Binding QtdBalancos}"
                                Style="{StaticResource SubtituloPagina}"/>
                     </Grid>
 
                     <Label Text="Cada balanço pode ser exportado em Excel (planilha contábil), PDF (relatório executivo) ou JSON (integração com outros sistemas)."
                            Style="{StaticResource SubtituloPagina}"/>
 
-                    <CollectionView x:Name="lvBalancos">
+                    <CollectionView ItemsSource="{Binding Balancos}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="items:BalancoListItem">
                                 <Border Stroke="{AppThemeBinding Light={StaticResource Border}, Dark={StaticResource BorderDark}}"
@@ -212,22 +213,22 @@
                                                     Style="{StaticResource SecondaryButton}"
                                                     HeightRequest="36"
                                                     FontSize="13"
-                                                    Clicked="OnExportarExcelClicado"
-                                                    CommandParameter="{Binding Id}"/>
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CadastroEmpresaViewModel}}, Path=ExportarCommand}"
+                                                    CommandParameter="Excel"/>
                                             <Button Grid.Column="1"
                                                     Text="PDF"
                                                     Style="{StaticResource SecondaryButton}"
                                                     HeightRequest="36"
                                                     FontSize="13"
-                                                    Clicked="OnExportarPdfClicado"
-                                                    CommandParameter="{Binding Id}"/>
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CadastroEmpresaViewModel}}, Path=ExportarCommand}"
+                                                    CommandParameter="PDF"/>
                                             <Button Grid.Column="2"
                                                     Text="JSON"
                                                     Style="{StaticResource SecondaryButton}"
                                                     HeightRequest="36"
                                                     FontSize="13"
-                                                    Clicked="OnExportarJsonClicado"
-                                                    CommandParameter="{Binding Id}"/>
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CadastroEmpresaViewModel}}, Path=ExportarCommand}"
+                                                    CommandParameter="JSON"/>
                                         </Grid>
                                     </Grid>
                                 </Border>
@@ -242,12 +243,11 @@
                 <Button Grid.Column="0"
                         Text="Cancelar"
                         Style="{StaticResource SecondaryButton}"
-                        Clicked="OnCancelarClicado"/>
+                        Command="{Binding CancelarCommand}"/>
                 <Button Grid.Column="1"
-                        x:Name="btnSalvar"
                         Text="Salvar"
                         Style="{StaticResource PrimaryButton}"
-                        Clicked="OnSalvarClicado"/>
+                        Command="{Binding SalvarCommand}"/>
             </Grid>
 
         </VerticalStackLayout>

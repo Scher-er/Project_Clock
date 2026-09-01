@@ -1,30 +1,27 @@
 using System.Globalization;
 using BalancoPatrimonial.App.Models;
+using BalancoPatrimonial.App.ViewModels;
 
 namespace BalancoPatrimonial.App.Views;
 
-/// <summary>
-/// Mostra, após a importação por IA, a comparação lado a lado entre o que foi
-/// EXTRAÍDO (e reconciliado) e o que está IMPRESSO no PDF, por grupo e período.
-/// Destaca onde houve ajuste automático, pra o analista validar antes de salvar.
-/// </summary>
 public partial class RevisaoImportacaoPage : ContentPage
 {
+    private readonly RevisaoImportacaoViewModel _viewModel;
     private static readonly CultureInfo _ptBR = new("pt-BR");
     private static readonly Color _verde = Color.FromArgb("#16A34A");
     private static readonly Color _amarelo = Color.FromArgb("#D97706");
     private static readonly Color _vermelho = Color.FromArgb("#DC2626");
 
-    public RevisaoImportacaoPage()
+    public RevisaoImportacaoPage(RevisaoImportacaoViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
     }
 
     public void Inicializar(AnaliseAutomaticaResultado dados)
     {
-        var emp = string.IsNullOrWhiteSpace(dados.RazaoSocial) ? "(empresa não identificada)" : dados.RazaoSocial;
-        lblSubtitulo.Text = $"{emp} · {dados.Periodos.Count} período(s) detectado(s)";
-
+        _viewModel.Inicializar(dados);
         layoutRevisao.Children.Clear();
 
         // Avisos gerais (cache, ajustes, divergências)
@@ -144,7 +141,4 @@ public partial class RevisaoImportacaoPage : ContentPage
     }
 
     private static string Fmt(decimal v) => "R$ " + v.ToString("N2", _ptBR);
-
-    private async void OnContinuarClicado(object? sender, EventArgs e)
-        => await Navigation.PopAsync();
 }

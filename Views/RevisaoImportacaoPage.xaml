@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:BalancoPatrimonial.App.ViewModels"
+             x:DataType="viewmodels:RevisaoImportacaoViewModel"
              x:Class="BalancoPatrimonial.App.Views.RevisaoImportacaoPage"
-             Title="Revisão da Importação">
+             Title="{Binding Title}">
 
     <Grid RowDefinitions="Auto, *, Auto">
 
@@ -10,8 +12,8 @@
                 BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
                 Padding="24,16">
             <VerticalStackLayout Spacing="2">
-                <Label x:Name="lblTitulo" Text="Revisão da importação" Style="{StaticResource TituloPagina}"/>
-                <Label x:Name="lblSubtitulo" Text="" Style="{StaticResource SubtituloPagina}"/>
+                <Label Text="{Binding Title}" Style="{StaticResource TituloPagina}"/>
+                <Label Text="{Binding Subtitulo}" Style="{StaticResource SubtituloPagina}"/>
             </VerticalStackLayout>
         </Border>
 
@@ -25,7 +27,7 @@
             <Button Text="Continuar para o planilhamento"
                     Style="{StaticResource PrimaryButton}"
                     HeightRequest="44"
-                    Clicked="OnContinuarClicado"/>
+                    Command="{Binding ContinuarCommand}"/>
         </Border>
     </Grid>
 </ContentPage>
