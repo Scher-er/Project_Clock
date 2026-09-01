@@ -2,11 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:BalancoPatrimonial.App.Views.Items"
+             xmlns:viewmodels="clr-namespace:BalancoPatrimonial.App.ViewModels"
+             x:DataType="viewmodels:EmpresasViewModel"
              x:Class="BalancoPatrimonial.App.Views.EmpresasPage"
              Title="Empresas">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Importar JSON" Clicked="OnImportarJsonClicado"/>
+        <ToolbarItem Text="Importar JSON" Command="{Binding ImportarJsonCommand}"/>
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="Auto, Auto, *" Padding="24" RowSpacing="16">
@@ -14,8 +16,7 @@
         <!-- Cabeçalho -->
         <VerticalStackLayout Grid.Row="0" Spacing="4">
             <Label Text="Empresas" Style="{StaticResource TituloPagina}"/>
-            <Label x:Name="lblSubtitulo"
-                   Text="Carregando..."
+            <Label Text="{Binding Subtitulo}"
                    Style="{StaticResource SubtituloPagina}"/>
         </VerticalStackLayout>
 
@@ -29,38 +30,36 @@
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="6"/>
                     </Border.StrokeShape>
-                    <Entry x:Name="txtPesquisa"
+                    <Entry Text="{Binding TextoPesquisa}"
                            Placeholder="Pesquisar por nome, CNPJ ou grupo econômico..."
                            ReturnType="Search"
-                           Completed="OnPesquisarClicado"/>
+                           ReturnCommand="{Binding PesquisarCommand}"/>
                 </Border>
                 <Button Grid.Column="1"
                         Text="Filtrar"
                         Style="{StaticResource SecondaryButton}"
-                        Clicked="OnPesquisarClicado"/>
+                        Command="{Binding PesquisarCommand}"/>
                 <Button Grid.Column="2"
                         Text="+ Nova"
                         Style="{StaticResource PrimaryButton}"
-                        Clicked="OnNovaEmpresaClicado"/>
+                        Command="{Binding NovaEmpresaCommand}"/>
             </Grid>
         </Border>
 
         <!-- Lista -->
         <RefreshView Grid.Row="2"
-                     x:Name="refreshView"
-                     Refreshing="OnRecarregar">
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RecarregarCommand}">
 
             <Grid>
                 <!-- Estado vazio -->
-                <Border x:Name="painelVazio"
-                        Style="{StaticResource Card}"
-                        IsVisible="false">
+                <Border Style="{StaticResource Card}"
+                        IsVisible="{Binding TemMensagemVazia}">
                     <VerticalStackLayout Spacing="12"
                                          HorizontalOptions="Center"
                                          VerticalOptions="Center">
                         <Label Text="" FontSize="48" HorizontalOptions="Center"/>
-                        <Label x:Name="lblMensagemVazia"
-                               Text="Nenhuma empresa cadastrada."
+                        <Label Text="{Binding MensagemVazia}"
                                FontSize="16"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"/>
@@ -71,7 +70,8 @@
                 </Border>
 
                 <!-- CollectionView -->
-                <CollectionView x:Name="lvEmpresas"
+                <CollectionView ItemsSource="{Binding Items}"
+                                IsVisible="{Binding ListaVisivel}"
                                 SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:EmpresaListItem">
@@ -80,7 +80,7 @@
                                     <SwipeItems>
                                         <SwipeItem Text="Excluir"
                                                    BackgroundColor="{StaticResource Danger}"
-                                                   Invoked="OnExcluirInvocado"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:EmpresasViewModel}}, Path=ExcluirCommand}"
                                                    CommandParameter="{Binding Id}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
@@ -89,7 +89,7 @@
                                         Margin="0,0,0,12">
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer
-                                            Tapped="OnEmpresaTocada"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:EmpresasViewModel}}, Path=EditarEmpresaCommand}"
                                             CommandParameter="{Binding Id}"/>
                                     </Border.GestureRecognizers>
 
@@ -144,7 +144,7 @@
                                                     HeightRequest="32"
                                                     Padding="12,0"
                                                     Style="{StaticResource SecondaryButton}"
-                                                    Clicked="OnVerBalancosClicado"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:EmpresasViewModel}}, Path=VerBalancosCommand}"
                                                     CommandParameter="{Binding Id}"/>
                                         </Grid>
                                     </Grid>

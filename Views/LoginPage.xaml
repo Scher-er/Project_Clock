@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:BalancoPatrimonial.App.ViewModels"
+             x:DataType="viewmodels:LoginViewModel"
              x:Class="BalancoPatrimonial.App.Views.LoginPage"
              Shell.NavBarIsVisible="False"
              NavigationPage.HasNavigationBar="False"
@@ -42,6 +44,8 @@
                             <RoundRectangle CornerRadius="6"/>
                         </Border.StrokeShape>
                         <Entry x:Name="txtLogin"
+                               Text="{Binding Login}"
+                               IsEnabled="{Binding IsNotBusy}"
                                Placeholder="admin"
                                ReturnType="Next"
                                ReturnCommand="{Binding Source={x:Reference txtSenha}, Path=Focus}"/>
@@ -59,31 +63,32 @@
                             <RoundRectangle CornerRadius="6"/>
                         </Border.StrokeShape>
                         <Entry x:Name="txtSenha"
-                               Placeholder="••••••"
+                               Text="{Binding Senha}"
+                               IsEnabled="{Binding IsNotBusy}"
+                               Placeholder="••••••••"
                                IsPassword="True"
                                ReturnType="Go"
-                               ReturnCommand="{Binding Source={x:Reference btnEntrar}, Path=Command}"/>
+                               ReturnCommand="{Binding EntrarCommand}"/>
                     </Border>
                 </VerticalStackLayout>
 
                 <!-- Mensagem de erro -->
-                <Label x:Name="lblErro"
+                <Label Text="{Binding ErroMensagem}"
                        TextColor="{StaticResource Danger}"
                        FontSize="13"
-                       IsVisible="False"
+                       IsVisible="{Binding TemErro}"
                        HorizontalOptions="Center"/>
 
                 <!-- Botão Entrar -->
-                <Button x:Name="btnEntrar"
-                        Text="ENTRAR"
+                <Button Text="ENTRAR"
+                        Command="{Binding EntrarCommand}"
+                        IsEnabled="{Binding IsNotBusy}"
                         Style="{StaticResource PrimaryButton}"
-                        Clicked="OnEntrarClicked"
                         Margin="0,8,0,0"/>
 
                 <!-- Loading -->
-                <ActivityIndicator x:Name="loading"
-                                   IsRunning="False"
-                                   IsVisible="False"
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
                                    Color="{StaticResource Primary}"/>
 
                 <Label Text="Use admin / admin para testar (Fase 1)"

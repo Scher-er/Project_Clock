@@ -23,6 +23,6 @@
     <Import Project="$(NuGetPackageRoot)microsoft.maui.resizetizer\8.0.100\buildTransitive\Microsoft.Maui.Resizetizer.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.maui.resizetizer\8.0.100\buildTransitive\Microsoft.Maui.Resizetizer.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.maui.controls.build.tasks\8.0.100\buildTransitive\net6.0-windows10.0.17763.0\Microsoft.Maui.Controls.Build.Tasks.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.maui.controls.build.tasks\8.0.100\buildTransitive\net6.0-windows10.0.17763.0\Microsoft.Maui.Controls.Build.Tasks.targets')" />
     <Import Project="$(NuGetPackageRoot)questpdf\2024.10.3\buildTransitive\QuestPDF.targets" Condition="Exists('$(NuGetPackageRoot)questpdf\2024.10.3\buildTransitive\QuestPDF.targets')" />
-    <Import Project="$(NuGetPackageRoot)communitytoolkit.mvvm\8.3.2\buildTransitive\CommunityToolkit.Mvvm.targets" Condition="Exists('$(NuGetPackageRoot)communitytoolkit.mvvm\8.3.2\buildTransitive\CommunityToolkit.Mvvm.targets')" />
+    <Import Project="$(NuGetPackageRoot)communitytoolkit.mvvm\8.4.2\buildTransitive\CommunityToolkit.Mvvm.targets" Condition="Exists('$(NuGetPackageRoot)communitytoolkit.mvvm\8.4.2\buildTransitive\CommunityToolkit.Mvvm.targets')" />
   </ImportGroup>
 </Project>

@@ -102,6 +102,10 @@ public static class MauiProgram
         services.AddTransient<IExportacaoController, ExportacaoController>();
         services.AddTransient<IAnaliseController, AnaliseController>();
 
+        // ───── ViewModels ─────
+        services.AddTransient<BalancoPatrimonial.App.ViewModels.LoginViewModel>();
+        services.AddTransient<BalancoPatrimonial.App.ViewModels.EmpresasViewModel>();
+
         // ───── Views ─────
         services.AddTransient<LoginPage>();
         services.AddTransient<PlanilhamentoPage>();

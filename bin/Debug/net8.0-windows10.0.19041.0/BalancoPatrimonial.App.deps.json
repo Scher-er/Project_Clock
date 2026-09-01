@@ -11,7 +11,7 @@
           "BCrypt.Net-Next": "4.0.3",
           "ClosedXML": "0.104.2",
           "CommunityToolkit.Maui": "9.0.3",
-          "CommunityToolkit.Mvvm": "8.3.2",
+          "CommunityToolkit.Mvvm": "8.4.2",
           "Dapper": "2.1.79",
           "LiveChartsCore.SkiaSharpView.Maui": "2.0.0-rc5.4",
           "Microsoft.Extensions.Logging.Debug": "8.0.0",
@@ -117,11 +117,11 @@
           }
         }
       },
-      "CommunityToolkit.Mvvm/8.3.2": {
+      "CommunityToolkit.Mvvm/8.4.2": {
         "runtime": {
           "lib/net8.0-windows10.0.17763/CommunityToolkit.Mvvm.dll": {
-            "assemblyVersion": "8.3.0.0",
-            "fileVersion": "8.3.2.1"
+            "assemblyVersion": "8.4.0.0",
+            "fileVersion": "8.4.2.1"
           }
         }
       },
@@ -1470,12 +1470,12 @@
       "path": "communitytoolkit.maui.core/9.0.3",
       "hashPath": "communitytoolkit.maui.core.9.0.3.nupkg.sha512"
     },
-    "CommunityToolkit.Mvvm/8.3.2": {
+    "CommunityToolkit.Mvvm/8.4.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-m8EolE1A0Updj68WTsZSGI6VWb6mUqHPh7QFo0kt7+JPhYMNXRS1ch8TS/oITAdcxTLrwMOp3ku1KjeG1/Zdpg==",
-      "path": "communitytoolkit.mvvm/8.3.2",
-      "hashPath": "communitytoolkit.mvvm.8.3.2.nupkg.sha512"
+      "sha512": "sha512-WadCzGEc2U+3e20avRLng4qNtt4zoOGWrdUISqJWrHe3/FSnrYjuM5Sb4yQb09LhkBXrrI4Zt3dLKgRMbItsrg==",
+      "path": "communitytoolkit.mvvm/8.4.2",
+      "hashPath": "communitytoolkit.mvvm.8.4.2.nupkg.sha512"
     },
     "Dapper/2.1.79": {
       "type": "package",

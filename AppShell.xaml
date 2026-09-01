@@ -23,7 +23,7 @@
                        FontSize="20"
                        FontAttributes="Bold"/>
                 <Label Text="Análise de Crédito"
-                       TextColor="#B8C5D6"
+                       TextColor="{StaticResource TextMuted}"
                        FontSize="12"/>
                 <Label x:Name="lblUsuarioLogado"
                        Text="—"
