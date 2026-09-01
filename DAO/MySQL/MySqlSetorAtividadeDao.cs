@@ -1,6 +1,6 @@
 using BalancoPatrimonial.App.DAO.Interfaces;
 using BalancoPatrimonial.App.Models;
-using MySqlConnector;
+using Dapper;
 
 namespace BalancoPatrimonial.App.DAO.MySQL;
 
@@ -18,92 +18,60 @@ public class MySqlSetorAtividadeDao : ISetorAtividadeDao
     {
         const string sql = @"
             INSERT INTO setor_atividade (codigo, nome, descricao)
-            VALUES (@codigo, @nome, @descricao);
+            VALUES (@Codigo, @Nome, @Descricao);
             SELECT LAST_INSERT_ID();";
 
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand(sql, conn);
-        cmd.Parameters.AddWithValue("@codigo", s.Codigo);
-        cmd.Parameters.AddWithValue("@nome", s.Nome);
-        cmd.Parameters.AddWithValue("@descricao", (object?)s.Descricao ?? DBNull.Value);
-
-        s.Id = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        s.Id = await conn.ExecuteScalarAsync<int>(sql, s);
         return s.Id;
     }
 
     public async Task<bool> AtualizarAsync(SetorAtividade s)
     {
         const string sql = @"UPDATE setor_atividade
-                             SET codigo=@codigo, nome=@nome, descricao=@descricao
-                             WHERE id=@id";
+                             SET codigo=@Codigo, nome=@Nome, descricao=@Descricao
+                             WHERE id=@Id";
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand(sql, conn);
-        cmd.Parameters.AddWithValue("@id", s.Id);
-        cmd.Parameters.AddWithValue("@codigo", s.Codigo);
-        cmd.Parameters.AddWithValue("@nome", s.Nome);
-        cmd.Parameters.AddWithValue("@descricao", (object?)s.Descricao ?? DBNull.Value);
-        return await cmd.ExecuteNonQueryAsync() > 0;
+        return await conn.ExecuteAsync(sql, s) > 0;
     }
 
     public async Task<bool> ExcluirAsync(int id)
     {
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand("DELETE FROM setor_atividade WHERE id=@id", conn);
-        cmd.Parameters.AddWithValue("@id", id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
+        return await conn.ExecuteAsync("DELETE FROM setor_atividade WHERE id=@Id", new { Id = id }) > 0;
     }
 
     public async Task<SetorAtividade?> BuscarPorIdAsync(int id)
     {
+        const string sql = @"SELECT id AS Id, codigo AS Codigo, nome AS Nome, descricao AS Descricao FROM setor_atividade WHERE id=@Id LIMIT 1";
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand("SELECT * FROM setor_atividade WHERE id=@id LIMIT 1", conn);
-        cmd.Parameters.AddWithValue("@id", id);
-        await using var r = await cmd.ExecuteReaderAsync();
-        return await r.ReadAsync() ? Mapear(r) : null;
+        return await conn.QueryFirstOrDefaultAsync<SetorAtividade>(sql, new { Id = id });
     }
 
     public async Task<SetorAtividade?> BuscarPorCodigoAsync(string codigo)
     {
+        const string sql = @"SELECT id AS Id, codigo AS Codigo, nome AS Nome, descricao AS Descricao FROM setor_atividade WHERE codigo=@Codigo LIMIT 1";
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand("SELECT * FROM setor_atividade WHERE codigo=@codigo LIMIT 1", conn);
-        cmd.Parameters.AddWithValue("@codigo", codigo);
-        await using var r = await cmd.ExecuteReaderAsync();
-        return await r.ReadAsync() ? Mapear(r) : null;
+        return await conn.QueryFirstOrDefaultAsync<SetorAtividade>(sql, new { Codigo = codigo });
     }
 
     public async Task<IEnumerable<SetorAtividade>> ListarTodosAsync()
     {
-        var lista = new List<SetorAtividade>();
+        const string sql = @"SELECT id AS Id, codigo AS Codigo, nome AS Nome, descricao AS Descricao FROM setor_atividade ORDER BY codigo";
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand("SELECT * FROM setor_atividade ORDER BY codigo", conn);
-        await using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) lista.Add(Mapear(r));
-        return lista;
+        return await conn.QueryAsync<SetorAtividade>(sql);
     }
 
     public async Task<IEnumerable<SetorAtividade>> ListarPorEmpresaAsync(int empresaId)
     {
         const string sql = @"
-            SELECT s.*
+            SELECT s.id AS Id, s.codigo AS Codigo, s.nome AS Nome, s.descricao AS Descricao
               FROM setor_atividade s
               JOIN empresa_setor es ON es.setor_id = s.id
-             WHERE es.empresa_id = @empresaId
+             WHERE es.empresa_id = @EmpresaId
              ORDER BY es.principal DESC, s.codigo";
 
-        var lista = new List<SetorAtividade>();
         await using var conn = await _connFactory.AbrirConexaoAsync();
-        await using var cmd = new MySqlCommand(sql, conn);
-        cmd.Parameters.AddWithValue("@empresaId", empresaId);
-        await using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) lista.Add(Mapear(r));
-        return lista;
+        return await conn.QueryAsync<SetorAtividade>(sql, new { EmpresaId = empresaId });
     }
-
-    private static SetorAtividade Mapear(MySqlDataReader r) => new()
-    {
-        Id = r.GetInt32("id"),
-        Codigo = r.GetString("codigo"),
-        Nome = r.GetString("nome"),
-        Descricao = r.IsDBNull(r.GetOrdinal("descricao")) ? null : r.GetString("descricao")
-    };
 }
