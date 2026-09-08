@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:BalancoPatrimonial.App.ViewModels"
+             x:DataType="viewmodels:PlanilhamentoViewModel"
              xmlns:models="clr-namespace:BalancoPatrimonial.App.Models"
              x:Class="BalancoPatrimonial.App.Views.PlanilhamentoPage"
              Title="Planilhamento">
@@ -49,15 +51,15 @@
                                BackgroundColor="Transparent"
                                Placeholder="Buscar empresa por nome ou CNPJ..."
                                VerticalOptions="Fill"
-                               TextChanged="OnBuscaEmpresaChanged"
-                               Focused="OnBuscaEmpresaFocused"/>
+                               Text="{Binding BuscaEmpresaText}"
+                               Focused="OnBuscaEmpresaFocused" />
                     </Border>
                 </VerticalStackLayout>
 
                 <Button Grid.Column="1" Text="+ Período"
                         Style="{StaticResource SecondaryButton}"
                         VerticalOptions="End" WidthRequest="110"
-                        Clicked="OnAdicionarPeriodoClicado"/>
+                        Command="{Binding AdicionarPeriodoClicadoCommand}"/>
 
                 <Button Grid.Column="2" Text="Importar PDF"
                         Style="{StaticResource SecondaryButton}"
@@ -72,7 +74,7 @@
                 <Button Grid.Column="4" Text="Limpar"
                         Style="{StaticResource SecondaryButton}"
                         VerticalOptions="End" WidthRequest="90"
-                        Clicked="OnLimparClicado"/>
+                        Command="{Binding LimparCommand}"/>
             </Grid>
         </Border>
 
@@ -138,54 +140,33 @@
                 <VerticalStackLayout Grid.Column="1" Spacing="4">
                     <Label Text="ANO" Style="{StaticResource LabelCampo}"/>
                     <Border Style="{StaticResource PickerBorder}">
-                        <Picker x:Name="pkAddAno" BackgroundColor="Transparent" VerticalOptions="Fill"/>
+                        <Picker x:Name="pkAddAno" BackgroundColor="Transparent" VerticalOptions="Fill" ItemsSource="{Binding AnosDisponiveis}" SelectedItem="{Binding AddAnoSelecionado}"/>
                     </Border>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Column="2" Spacing="4">
                     <Label Text="MÊS (OPCIONAL)" Style="{StaticResource LabelCampo}"/>
                     <Border Style="{StaticResource PickerBorder}">
-                        <Picker x:Name="pkAddMes" BackgroundColor="Transparent" VerticalOptions="Fill">
-                            <Picker.Items>
-                                <x:String>Ano inteiro</x:String>
-                                <x:String>Janeiro</x:String>
-                                <x:String>Fevereiro</x:String>
-                                <x:String>Março</x:String>
-                                <x:String>Abril</x:String>
-                                <x:String>Maio</x:String>
-                                <x:String>Junho</x:String>
-                                <x:String>Julho</x:String>
-                                <x:String>Agosto</x:String>
-                                <x:String>Setembro</x:String>
-                                <x:String>Outubro</x:String>
-                                <x:String>Novembro</x:String>
-                                <x:String>Dezembro</x:String>
-                            </Picker.Items>
-                        </Picker>
+                        <Picker x:Name="pkAddMes" BackgroundColor="Transparent" VerticalOptions="Fill" ItemsSource="{Binding MesesDisponiveis}" SelectedItem="{Binding AddMesSelecionado}"/>
                     </Border>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Column="3" Spacing="4">
                     <Label Text="TIPO" Style="{StaticResource LabelCampo}"/>
                     <Border Style="{StaticResource PickerBorder}">
-                        <Picker x:Name="pkAddTipo" BackgroundColor="Transparent" VerticalOptions="Fill">
-                            <Picker.Items>
-                                <x:String>Individual</x:String>
-                                <x:String>Consolidado</x:String>
-                            </Picker.Items>
-                        </Picker>
+                        <Picker x:Name="pkAddTipo" BackgroundColor="Transparent" VerticalOptions="Fill" ItemsSource="{Binding TiposDisponiveis}" SelectedItem="{Binding AddTipoSelecionado}"/>
                     </Border>
                 </VerticalStackLayout>
 
                 <Button Grid.Column="4" Text="Adicionar"
                         Style="{StaticResource PrimaryButton}"
                         VerticalOptions="End" WidthRequest="110"
-                        Clicked="OnConfirmarAdicionarPeriodo"/>
+                        Command="{Binding ConfirmarAdicionarPeriodoCommand}"/>
 
                 <Button Grid.Column="5" Text="Cancelar"
                         Style="{StaticResource SecondaryButton}"
                         VerticalOptions="End" WidthRequest="100"
-                        Clicked="OnCancelarAdicionarPeriodo"/>
+                        Command="{Binding CancelarAdicionarPeriodoCommand}"/>
             </Grid>
         </Border>
 
@@ -239,9 +220,10 @@
                         VerticalOptions="Center"
                         WidthRequest="160"
                         HeightRequest="40"
-                        Clicked="OnSalvarClicado"/>
+                        Command="{Binding SalvarCommand}"/>
             </Grid>
         </Border>
 
     </Grid>
 </ContentPage>
+

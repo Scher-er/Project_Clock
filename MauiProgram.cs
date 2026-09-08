@@ -109,6 +109,7 @@ public static class MauiProgram
 
         // ───── Views ─────
         services.AddTransient<LoginPage>();
+        services.AddTransient<PlanilhamentoViewModel>();
         services.AddTransient<PlanilhamentoPage>();
         services.AddTransient<EmpresasPage>();
         services.AddTransient<CadastroEmpresaViewModel>();

@@ -5,107 +5,77 @@ using BalancoPatrimonial.App.Models;
 using BalancoPatrimonial.App.Models.Enums;
 using BalancoPatrimonial.App.Services;
 using BalancoPatrimonial.App.Views.Items;
+using BalancoPatrimonial.App.ViewModels;
 
 namespace BalancoPatrimonial.App.Views;
 
-/// <summary>
-/// Tela de planilhamento de balanços patrimoniais — versão multi-período.
-///
-/// Fluxo:
-///   1. Ao abrir: carrega plano de contas e cria 1 período default (ano atual, Individual)
-///   2. Usuário pode adicionar mais períodos (botão "+ Período")
-///   3. Cada período vira uma coluna na tabela
-///   4. Edita valores nas analíticas → totalizadoras recalculadas naquela coluna
-///   5. Importar PDF: preenche o PRIMEIRO período (com aviso)
-///   6. Salvar: gera 1 Balanco por período, salva todos
-/// </summary>
 public partial class PlanilhamentoPage : ContentPage
 {
+    private readonly PlanilhamentoViewModel _viewModel;
     private readonly IPlanilhamentoController _controller;
     private readonly ISessaoUsuario _sessao;
 
-    // Estado da tela
-    private readonly List<PeriodoPlanilhado> _periodos = new();
-    private List<LinhaContaPlanilhamento> _linhas = new();
-    private List<Empresa> _empresas = new();
-    private List<ContaPadrao> _planoContas = new();
-    private bool _carregadoUmaVez;
-
-    // Empresa selecionada via busca por texto (substitui pkEmpresa.SelectedItem)
-    private Empresa? _empresaSelecionada;
-
-    // Estado da importação (preserva hash do PDF ao salvar o 1º período)
     private string? _hashPdfImportado;
     private string? _nomeArquivoImportado;
-    private string _origemImportacao = "Manual";
-
-    // PDF carregado em memória, pra permitir "tentar novamente" sem reenviar
+    
     private byte[]? _ultimoPdfBytes;
     private string? _ultimoPdfNome;
 
-    // DREs extraídas na importação (por ano+tipo), salvas junto com o balanço
-    private readonly Dictionary<(int ano, TipoBalanco tipo), Dre> _dresImportadas = new();
-
-    // Cores adaptativas pra construção dinâmica do Grid
     private static readonly Color _corAzulHeader = Color.FromArgb("#1F3A60");
     private static readonly Color _corVerde = Color.FromArgb("#0E7C66");
     private static readonly Color _corVermelho = Color.FromArgb("#C0392B");
 
-    public PlanilhamentoPage(IPlanilhamentoController controller, ISessaoUsuario sessao)
+    public PlanilhamentoPage(PlanilhamentoViewModel viewModel, IPlanilhamentoController controller, ISessaoUsuario sessao)
     {
         InitializeComponent();
+        _viewModel = viewModel;
         _controller = controller;
         _sessao = sessao;
+        BindingContext = _viewModel;
 
-        // Popula anos no painel de adicionar período (últimos 10 anos)
-        var anoAtual = DateTime.Now.Year;
-        pkAddAno.ItemsSource = Enumerable.Range(anoAtual - 9, 10)
-            .Reverse()
-            .Select(a => a.ToString())
-            .ToList();
-        pkAddAno.SelectedIndex = 1;
-        pkAddMes.SelectedIndex = 0;   // Ano inteiro
-        pkAddTipo.SelectedIndex = 0;  // Individual
+        _viewModel.PlanoCarregado += () => 
+        {
+            AtualizarChips();
+            ReconstruirTabela();
+        };
+        _viewModel.ReconstruirTabelaAction += () => 
+        {
+            AtualizarChips();
+            ReconstruirTabela();
+        };
+        _viewModel.AtualizarKpisAction += AtualizarKPIs;
+        _viewModel.FecharResultadosAction += () => painelResultadosEmpresa.IsVisible = false;
+        _viewModel.MostrarMensagemAction += async (msg) => await DisplayAlert("Aviso", msg, "OK");
+        _viewModel.MostrarConfirmacaoAction = async (title, msg, ok, cancel) => await DisplayAlert(title, msg, ok, cancel);
+    }
+
+    private void OnBuscaEmpresaFocused(object? sender, FocusEventArgs e)
+    {
+        _viewModel.BuscaEmpresaFocusedCommand.Execute(null);
+    }
+
+    private void OnEmpresaResultadoSelecionado(object? sender, SelectionChangedEventArgs e)
+    {
+        var emp = e.CurrentSelection.FirstOrDefault() as Empresa;
+        if (emp != null)
+        {
+            _viewModel.EmpresaSelecionadaResultCommand.Execute(emp);
+            lvResultadosEmpresa.SelectedItem = null;
+        }
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        // Empresas são recarregadas SEMPRE, pra refletir cadastros feitos em
-        // outras telas enquanto a página ficou viva no Shell.
-        await CarregarEmpresasAsync();
-
-        if (_carregadoUmaVez) return;
-        await InicializarPlanoEPeriodoAsync();
-        _carregadoUmaVez = true;
-    }
-
-    private async Task CarregarEmpresasAsync()
-    {
-        var rEmpresas = await _controller.ListarEmpresasAsync();
-        if (rEmpresas.Sucesso && rEmpresas.Dados is not null)
-            _empresas = rEmpresas.Dados.ToList();
-    }
-
-    private async Task InicializarPlanoEPeriodoAsync()
-    {
-        // Plano de contas
-        var rContas = await _controller.ListarPlanoDeContasAsync();
-        if (rContas.Sucesso && rContas.Dados is not null)
+        if (!_viewModel.Linhas.Any())
         {
-            _planoContas = rContas.Dados.ToList();
-            _linhas = LinhaContaPlanilhamento.ConstruirHierarquia(_planoContas);
-
-            // Período default: ano anterior, anual, individual
-            _periodos.Add(new PeriodoPlanilhado
-            {
-                Mes = null,
-                Ano = DateTime.Now.Year - 1,
-                Tipo = TipoBalanco.Individual
-            });
-            ReconstruirTabela();
+            await _viewModel.InicializarAsync();
         }
     }
+
+    
+
+    
 
     // ═════════════════════════════════════════════════════════
     // BUSCA DE EMPRESA POR TEXTO
@@ -116,159 +86,30 @@ public partial class PlanilhamentoPage : ContentPage
     //   - Usuário digita no Entry → OnBuscaEmpresaChanged filtra e mostra resultados
     //   - Foco no Entry → mostra lista (se tem termo de busca)
     //   - Clica num resultado → seleciona, escreve nome no Entry, esconde lista
-    //   - _empresaSelecionada armazena a seleção (substitui pkEmpresa.SelectedItem)
+    //   - _viewModel.EmpresaSelecionada armazena a seleção (substitui pkEmpresa.SelectedItem)
     // ═════════════════════════════════════════════════════════
 
-    private void OnBuscaEmpresaChanged(object? sender, TextChangedEventArgs e)
-    {
-        // Ignora mudanças disparadas quando preenchemos o campo após uma seleção
-        // (evita reabrir o painel de resultados logo após escolher a empresa).
-        if (_atualizandoTextoPorSelecao) return;
+    
 
-        var termo = (e.NewTextValue ?? string.Empty).Trim().ToLowerInvariant();
+    
 
-        // Se o texto não bate exatamente com a empresa selecionada, deseleciona.
-        // (Permite que o usuário edite/troque sem precisar limpar manualmente.)
-        if (_empresaSelecionada is not null
-            && !string.Equals(termo, _empresaSelecionada.RazaoSocial, StringComparison.OrdinalIgnoreCase))
-        {
-            _empresaSelecionada = null;
-            AtualizarSubtitulo();
-        }
+    
 
-        if (string.IsNullOrEmpty(termo))
-        {
-            painelResultadosEmpresa.IsVisible = false;
-            lvResultadosEmpresa.ItemsSource = null;
-            return;
-        }
-
-        // Filtra por RazaoSocial OU por CNPJ (apenas dígitos do termo vs CNPJ)
-        var digitosTermo = new string(termo.Where(char.IsDigit).ToArray());
-
-        var filtradas = _empresas
-            .Where(emp =>
-                emp.RazaoSocial.ToLowerInvariant().Contains(termo)
-                || (digitosTermo.Length >= 2 && (emp.Cnpj ?? "").Contains(digitosTermo)))
-            .Take(15)
-            .ToList();
-
-        lvResultadosEmpresa.ItemsSource = filtradas;
-        painelResultadosEmpresa.IsVisible = true;
-    }
-
-    private void OnBuscaEmpresaFocused(object? sender, FocusEventArgs e)
-    {
-        // Reabre a lista se o usuário voltou a focar com texto digitado
-        if (!string.IsNullOrWhiteSpace(txtBuscaEmpresa.Text)
-            && lvResultadosEmpresa.ItemsSource is not null)
-        {
-            painelResultadosEmpresa.IsVisible = true;
-        }
-    }
-
-    private void OnEmpresaResultadoSelecionado(object? sender, SelectionChangedEventArgs e)
-    {
-        if (e.CurrentSelection.FirstOrDefault() is not Empresa empresa) return;
-
-        _empresaSelecionada = empresa;
-
-        // Atualiza o campo com o nome (sem disparar nova busca — usamos uma flag)
-        _atualizandoTextoPorSelecao = true;
-        txtBuscaEmpresa.Text = empresa.RazaoSocial;
-        _atualizandoTextoPorSelecao = false;
-
-        // Fecha o painel e limpa a seleção da CollectionView
-        painelResultadosEmpresa.IsVisible = false;
-        lvResultadosEmpresa.SelectedItem = null;
-
-        lblSubtitulo.Text = $"Planilhando balanços de '{empresa.RazaoSocial}' — {_periodos.Count} período(s).";
-    }
-
-    private bool _atualizandoTextoPorSelecao = false;
+    
 
     // ═════════════════════════════════════════════════════════
     // ADICIONAR / REMOVER PERÍODO
     // ═════════════════════════════════════════════════════════
 
-    private void OnAdicionarPeriodoClicado(object? sender, EventArgs e)
-    {
-        painelAddPeriodo.IsVisible = !painelAddPeriodo.IsVisible;
-    }
+    
 
-    private async void OnConfirmarAdicionarPeriodo(object? sender, EventArgs e)
-    {
-        var anoStr = pkAddAno.SelectedItem as string;
-        if (!int.TryParse(anoStr, out var ano))
-        {
-            await DisplayAlert("Atenção", "Selecione um ano.", "OK");
-            return;
-        }
+    
 
-        int? mes = pkAddMes.SelectedIndex == 0 ? null : pkAddMes.SelectedIndex;
-        var tipo = pkAddTipo.SelectedIndex == 1 ? TipoBalanco.Consolidado : TipoBalanco.Individual;
+    
 
-        var novo = new PeriodoPlanilhado { Mes = mes, Ano = ano, Tipo = tipo };
+    
 
-        if (_periodos.Contains(novo))
-        {
-            await DisplayAlert("Atenção", $"O período '{novo.LabelCompleto}' já está adicionado.", "OK");
-            return;
-        }
-
-        _periodos.Add(novo);
-        painelAddPeriodo.IsVisible = false;
-        ReconstruirTabela();
-        AtualizarSubtitulo();
-    }
-
-    private void OnCancelarAdicionarPeriodo(object? sender, EventArgs e)
-    {
-        painelAddPeriodo.IsVisible = false;
-    }
-
-    private void RemoverPeriodo(PeriodoPlanilhado p)
-    {
-        if (_periodos.Count == 1)
-        {
-            DisplayAlert("Atenção",
-                "Pelo menos um período é obrigatório. Use o botão Limpar pra zerar valores.",
-                "OK");
-            return;
-        }
-
-        int idx = _periodos.IndexOf(p);
-        _periodos.RemoveAt(idx);
-
-        // Remove a coluna correspondente de todas as linhas e re-indexa as colunas posteriores
-        foreach (var linha in _linhas)
-        {
-            linha.Celulas.Remove(idx);
-            var chavesPosteriores = linha.Celulas.Keys.Where(k => k > idx).OrderBy(k => k).ToList();
-            foreach (var k in chavesPosteriores)
-            {
-                var cel = linha.Celulas[k];
-                cel.PeriodoIdx = k - 1;
-                linha.Celulas[k - 1] = cel;
-                linha.Celulas.Remove(k);
-            }
-        }
-
-        ReconstruirTabela();
-        AtualizarSubtitulo();
-    }
-
-    private void AtualizarSubtitulo()
-    {
-        if (_empresaSelecionada is Empresa empresa)
-        {
-            lblSubtitulo.Text = $"Planilhando balanços de '{empresa.RazaoSocial}' — {_periodos.Count} período(s).";
-        }
-        else
-        {
-            lblSubtitulo.Text = $"{_periodos.Count} período(s) ativo(s). Selecione uma empresa antes de salvar.";
-        }
-    }
+    
 
     // ═════════════════════════════════════════════════════════
     // CONSTRUÇÃO DA TABELA (Grid dinâmico)
@@ -283,20 +124,20 @@ public partial class PlanilhamentoPage : ContentPage
         // Colunas: Código (110) | Descrição (380) | N x Período (170)
         gridTabela.ColumnDefinitions.Add(new ColumnDefinition(110));
         gridTabela.ColumnDefinitions.Add(new ColumnDefinition(380));
-        for (int i = 0; i < _periodos.Count; i++)
+        for (int i = 0; i < _viewModel.Periodos.Count; i++)
             gridTabela.ColumnDefinitions.Add(new ColumnDefinition(170));
 
         // Monta a sequência de renderização: cada conta + um botão "+" logo após
         // a última conta analítica de cada subgrupo, pra criar novos campos naquela área.
         var elementos = new List<(LinhaContaPlanilhamento? linha, int paiIdParaAdicionar)>();
-        for (int idx = 0; idx < _linhas.Count; idx++)
+        for (int idx = 0; idx < _viewModel.Linhas.Count; idx++)
         {
-            var l = _linhas[idx];
+            var l = _viewModel.Linhas[idx];
             elementos.Add((l, 0));
             if (l.EhEditavel && l.Pai is not null)
             {
-                bool ultimaDoPai = (idx == _linhas.Count - 1)
-                                   || !ReferenceEquals(_linhas[idx + 1].Pai, l.Pai);
+                bool ultimaDoPai = (idx == _viewModel.Linhas.Count - 1)
+                                   || !ReferenceEquals(_viewModel.Linhas[idx + 1].Pai, l.Pai);
                 if (ultimaDoPai)
                     elementos.Add((null, l.Pai.Conta.Id));
             }
@@ -310,9 +151,9 @@ public partial class PlanilhamentoPage : ContentPage
         // ──────── HEADER ────────
         AdicionarHeaderCelula(0, 0, "CÓDIGO", HorizontalOptions: LayoutOptions.Start);
         AdicionarHeaderCelula(0, 1, "DESCRIÇÃO", HorizontalOptions: LayoutOptions.Start);
-        for (int i = 0; i < _periodos.Count; i++)
+        for (int i = 0; i < _viewModel.Periodos.Count; i++)
         {
-            AdicionarHeaderCelula(0, 2 + i, _periodos[i].LabelCompleto,
+            AdicionarHeaderCelula(0, 2 + i, _viewModel.Periodos[i].LabelCompleto,
                                   HorizontalOptions: LayoutOptions.End);
         }
 
@@ -342,7 +183,7 @@ public partial class PlanilhamentoPage : ContentPage
                     : Colors.Transparent
             };
             Grid.SetRow(bgRow, gridRow);
-            Grid.SetColumnSpan(bgRow, 2 + _periodos.Count);
+            Grid.SetColumnSpan(bgRow, 2 + _viewModel.Periodos.Count);
             gridTabela.Children.Add(bgRow);
 
             // Código
@@ -379,7 +220,7 @@ public partial class PlanilhamentoPage : ContentPage
             gridTabela.Children.Add(labelDesc);
 
             // Células de valor (1 por período)
-            for (int p = 0; p < _periodos.Count; p++)
+            for (int p = 0; p < _viewModel.Periodos.Count; p++)
             {
                 var celula = linha.ObterCelula(p);
 
@@ -499,7 +340,7 @@ public partial class PlanilhamentoPage : ContentPage
             bordaBaixo.SetAppThemeColor(BoxView.ColorProperty,
                 Color.FromArgb("#E1E5EB"), Color.FromArgb("#2A3441"));
             Grid.SetRow(bordaBaixo, gridRow);
-            Grid.SetColumnSpan(bordaBaixo, 2 + _periodos.Count);
+            Grid.SetColumnSpan(bordaBaixo, 2 + _viewModel.Periodos.Count);
             gridTabela.Children.Add(bordaBaixo);
         }
 
@@ -553,7 +394,7 @@ public partial class PlanilhamentoPage : ContentPage
             return;
         }
 
-        await RecarregarPlanoPreservandoValoresAsync();
+        await _viewModel.RecarregarPlanoPreservandoValoresAsync();
         await DisplayAlert("Conta criada",
             $"'{r.Dados.Codigo} — {r.Dados.Descricao}' foi adicionada e já aparece na tabela.", "OK");
     }
@@ -562,32 +403,7 @@ public partial class PlanilhamentoPage : ContentPage
     /// Recarrega o plano de contas do banco (pra incluir contas recém-criadas)
     /// sem perder os valores que o usuário já digitou em cada período.
     /// </summary>
-    private async Task RecarregarPlanoPreservandoValoresAsync()
-    {
-        // Snapshot dos valores atuais: (contaId, períodoIdx) -> valor
-        var snapshot = new Dictionary<(int contaId, int perIdx), decimal>();
-        foreach (var linha in _linhas.Where(l => l.EhEditavel))
-            foreach (var kv in linha.Celulas)
-                if (kv.Value.Valor != 0)
-                    snapshot[(linha.Conta.Id, kv.Key)] = kv.Value.Valor;
-
-        var rContas = await _controller.ListarPlanoDeContasAsync();
-        if (!rContas.Sucesso || rContas.Dados is null) return;
-
-        _planoContas = rContas.Dados.ToList();
-        _linhas = LinhaContaPlanilhamento.ConstruirHierarquia(_planoContas);
-
-        // Restaura valores
-        foreach (var ((contaId, perIdx), valor) in snapshot)
-        {
-            if (perIdx >= _periodos.Count) continue;
-            var linha = _linhas.FirstOrDefault(l => l.Conta.Id == contaId);
-            if (linha is not null && linha.EhEditavel)
-                linha.ObterCelula(perIdx).Valor = valor;
-        }
-
-        ReconstruirTabela();
-    }
+    
 
     /// <summary>Adiciona uma célula de header (fundo azul corporativo) no Grid.</summary>
     private void AdicionarHeaderCelula(int row, int col, string texto, LayoutOptions HorizontalOptions)
@@ -622,11 +438,11 @@ public partial class PlanilhamentoPage : ContentPage
     private void AtualizarChips()
     {
         layoutChips.Children.Clear();
-        painelChips.IsVisible = _periodos.Count > 0;
+        painelChips.IsVisible = _viewModel.Periodos.Count > 0;
 
-        for (int i = 0; i < _periodos.Count; i++)
+        for (int i = 0; i < _viewModel.Periodos.Count; i++)
         {
-            var p = _periodos[i];
+            var p = _viewModel.Periodos[i];
             var chip = new Border
             {
                 StrokeThickness = 1,
@@ -664,7 +480,7 @@ public partial class PlanilhamentoPage : ContentPage
             btnX.SetAppThemeColor(Button.TextColorProperty,
                 Color.FromArgb("#5A6478"), Color.FromArgb("#A8B0BF"));
             var pRef = p;
-            btnX.Clicked += (s, e) => RemoverPeriodo(pRef);
+            btnX.Clicked += (s, e) => _viewModel.RemoverPeriodoCommand.Execute(pRef);
 
             hbox.Children.Add(lbl);
             hbox.Children.Add(btnX);
@@ -685,7 +501,7 @@ public partial class PlanilhamentoPage : ContentPage
         // Cada período gera UMA LINHA compacta com tudo numa fileira:
         //   "2025 (I)   Ativo: R$ 1.234,56   P+PL: R$ 1.234,56   Δ R$ 0,00"
         // Isso economiza ~70% da altura do rodapé vs cards verticais.
-        for (int p = 0; p < _periodos.Count; p++)
+        for (int p = 0; p < _viewModel.Periodos.Count; p++)
         {
             var ativo = SomarGrupoNaColuna(GrupoContaPrincipal.Ativo, p);
             var passivo = SomarGrupoNaColuna(GrupoContaPrincipal.Passivo, p);
@@ -698,7 +514,7 @@ public partial class PlanilhamentoPage : ContentPage
             // Label do período (bold, com cor secundária)
             var lblPer = new Label
             {
-                Text = _periodos[p].LabelCompleto,
+                Text = _viewModel.Periodos[p].LabelCompleto,
                 FontSize = 12,
                 FontAttributes = FontAttributes.Bold,
                 CharacterSpacing = 1,
@@ -745,7 +561,7 @@ public partial class PlanilhamentoPage : ContentPage
 
     private decimal SomarGrupoNaColuna(GrupoContaPrincipal grupo, int perIdx)
     {
-        return _linhas
+        return _viewModel.Linhas
             .Where(l => l.Grupo == grupo && !l.EhTotalizadora)
             .Sum(l => l.ObterCelula(perIdx).Valor);
     }
@@ -766,20 +582,20 @@ public partial class PlanilhamentoPage : ContentPage
 
     private async Task ImportarPdfHeuristicoAsync()
     {
-        if (_empresaSelecionada is null)
+        if (_viewModel.EmpresaSelecionada is null)
         {
             await DisplayAlert("Atenção", "Selecione uma empresa antes de importar.", "OK");
             return;
         }
-        if (_periodos.Count == 0)
+        if (_viewModel.Periodos.Count == 0)
         {
             await DisplayAlert("Atenção", "Adicione pelo menos um período antes de importar.", "OK");
             return;
         }
-        if (_periodos.Count > 1)
+        if (_viewModel.Periodos.Count > 1)
         {
             var ok = await DisplayAlert("Importar PDF",
-                $"A importação simples preenche apenas o PRIMEIRO período ({_periodos[0].LabelCompleto}). " +
+                $"A importação simples preenche apenas o PRIMEIRO período ({_viewModel.Periodos[0].LabelCompleto}). " +
                 "Pra detectar empresa e múltiplos períodos automaticamente, use 'Importar com IA'. Continuar?",
                 "Continuar", "Cancelar");
             if (!ok) return;
@@ -795,7 +611,7 @@ public partial class PlanilhamentoPage : ContentPage
 
             if (!resultado.Sucesso || resultado.Dados is null)
             {
-                AtualizarSubtitulo();
+                _viewModel.AtualizarSubtitulo();
                 await DisplayAlert("Erro na análise", resultado.Mensagem, "OK");
                 return;
             }
@@ -803,7 +619,7 @@ public partial class PlanilhamentoPage : ContentPage
             int aplicadas = 0;
             foreach (var (contaId, valor) in resultado.Dados.ContasMapeadas)
             {
-                var linha = _linhas.FirstOrDefault(l => l.Conta.Id == contaId);
+                var linha = _viewModel.Linhas.FirstOrDefault(l => l.Conta.Id == contaId);
                 if (linha is not null && linha.EhEditavel)
                 {
                     linha.ObterCelula(0).Valor = valor;
@@ -813,16 +629,16 @@ public partial class PlanilhamentoPage : ContentPage
 
             _hashPdfImportado = resultado.Dados.HashPdf;
             _nomeArquivoImportado = arquivo.FileName;
-            _origemImportacao = "PDF";
+            
 
             ReconstruirTabela();
             await DisplayAlert("PDF importado",
-                $"{aplicadas} contas preenchidas no período {_periodos[0].LabelCompleto}.", "OK");
+                $"{aplicadas} contas preenchidas no período {_viewModel.Periodos[0].LabelCompleto}.", "OK");
         }
         catch (Exception ex)
         {
             await DisplayAlert("Erro", $"Falha ao processar PDF: {ex.Message}", "OK");
-            AtualizarSubtitulo();
+            _viewModel.AtualizarSubtitulo();
         }
     }
 
@@ -833,10 +649,10 @@ public partial class PlanilhamentoPage : ContentPage
 
     private void DefinirEmpresaSelecionada(Empresa empresa)
     {
-        _empresaSelecionada = empresa;
-        _atualizandoTextoPorSelecao = true;
+        _viewModel.EmpresaSelecionada = empresa;
+        
         txtBuscaEmpresa.Text = empresa.RazaoSocial;
-        _atualizandoTextoPorSelecao = false;
+        
     }
 
     /// <summary>
@@ -871,8 +687,8 @@ public partial class PlanilhamentoPage : ContentPage
             if (r.Sucesso && r.Dados is not null)
             {
                 DefinirEmpresaSelecionada(r.Dados);
-                if (_empresas.All(e => e.Id != r.Dados.Id))
-                    _empresas.Add(r.Dados); // reflete na busca local na hora
+                if (_viewModel.TodasEmpresas.All(e => e.Id != r.Dados.Id))
+                    _viewModel.TodasEmpresas.Add(r.Dados); // reflete na busca local na hora
                 return r.Dados;
             }
 
@@ -934,7 +750,7 @@ public partial class PlanilhamentoPage : ContentPage
 
             if (!r.Sucesso || r.Dados is null)
             {
-                AtualizarSubtitulo();
+                _viewModel.AtualizarSubtitulo();
                 var tentar = await DisplayAlert("Erro na análise",
                     $"{r.Mensagem}\n\nDeseja tentar novamente? (o PDF já está carregado, não precisa reenviar)",
                     "Tentar novamente", "Cancelar");
@@ -946,7 +762,7 @@ public partial class PlanilhamentoPage : ContentPage
 
             if (dados.Periodos.Count == 0)
             {
-                AtualizarSubtitulo();
+                _viewModel.AtualizarSubtitulo();
                 await DisplayAlert("Nada detectado",
                     "A IA não conseguiu detectar períodos no PDF. " +
                     string.Join(" ", dados.Avisos), "OK");
@@ -976,23 +792,23 @@ public partial class PlanilhamentoPage : ContentPage
             }
 
             // 2) Recarrega o plano de contas (a IA pode ter criado contas novas/ajuste)
-            await RecarregarPlanoPreservandoValoresAsync();
+            await _viewModel.RecarregarPlanoPreservandoValoresAsync();
 
             // 3) Limpa períodos e células atuais
-            _periodos.Clear();
-            foreach (var linha in _linhas)
+            _viewModel.Periodos.Clear();
+            foreach (var linha in _viewModel.Linhas)
                 linha.Celulas.Clear();
 
             // 4) Cria períodos detectados + preenche contas
-            _dresImportadas.Clear();
+            _viewModel.DresImportadas.Clear();
             for (int i = 0; i < dados.Periodos.Count; i++)
             {
                 var pd = dados.Periodos[i];
-                _periodos.Add(new PeriodoPlanilhado { Ano = pd.Ano, Mes = pd.Mes, Tipo = pd.Tipo });
+                _viewModel.Periodos.Add(new PeriodoPlanilhado { Ano = pd.Ano, Mes = pd.Mes, Tipo = pd.Tipo });
 
                 foreach (var (contaId, valor) in pd.ContasMapeadas)
                 {
-                    var linha = _linhas.FirstOrDefault(l => l.Conta.Id == contaId);
+                    var linha = _viewModel.Linhas.FirstOrDefault(l => l.Conta.Id == contaId);
                     if (linha is not null && linha.EhEditavel)
                         linha.ObterCelula(i).Valor = valor;
                 }
@@ -1000,7 +816,7 @@ public partial class PlanilhamentoPage : ContentPage
                 // Guarda a DRE (se a IA extraiu) pra salvar junto com o balanço
                 if (pd.TemDre)
                 {
-                    _dresImportadas[(pd.Ano, pd.Tipo)] = new Dre
+                    _viewModel.DresImportadas[(pd.Ano, pd.Tipo)] = new Dre
                     {
                         AnoExercicio = pd.Ano,
                         TipoBalanco = pd.Tipo,
@@ -1017,7 +833,7 @@ public partial class PlanilhamentoPage : ContentPage
 
             _hashPdfImportado = dados.HashPdf;
             _nomeArquivoImportado = _ultimoPdfNome;
-            _origemImportacao = "PDF + IA (automático)";
+            
 
             // 5) Reconstrói a tabela com tudo preenchido
             ReconstruirTabela();
@@ -1034,7 +850,7 @@ public partial class PlanilhamentoPage : ContentPage
         }
         catch (Exception ex)
         {
-            AtualizarSubtitulo();
+            _viewModel.AtualizarSubtitulo();
             var tentar = await DisplayAlert("Erro",
                 $"Falha ao processar PDF: {ex.Message}\n\nDeseja tentar novamente?",
                 "Tentar novamente", "Cancelar");
@@ -1067,127 +883,7 @@ public partial class PlanilhamentoPage : ContentPage
     // LIMPAR / SALVAR
     // ═════════════════════════════════════════════════════════
 
-    private async void OnLimparClicado(object? sender, EventArgs e)
-    {
-        bool ok = await DisplayAlert("Limpar valores",
-            "Tem certeza? Todos os valores digitados serão apagados (os períodos permanecem).",
-            "Limpar", "Cancelar");
-        if (!ok) return;
+    
 
-        foreach (var linha in _linhas)
-        {
-            foreach (var (_, cel) in linha.Celulas)
-                cel.Valor = 0;
-        }
-        _hashPdfImportado = null;
-        _nomeArquivoImportado = null;
-        _origemImportacao = "Manual";
-        AtualizarKPIs();
-    }
-
-    private async void OnSalvarClicado(object? sender, EventArgs e)
-    {
-        if (_empresaSelecionada is not Empresa empresa)
-        {
-            await DisplayAlert("Atenção", "Selecione uma empresa.", "OK");
-            return;
-        }
-        if (_sessao.UsuarioAtual is null)
-        {
-            await DisplayAlert("Erro", "Sessão expirou. Faça login novamente.", "OK");
-            return;
-        }
-        if (_periodos.Count == 0)
-        {
-            await DisplayAlert("Atenção", "Adicione pelo menos um período.", "OK");
-            return;
-        }
-
-        // Verifica antecipadamente quais períodos já têm balanço salvo, pra
-        // oferecer substituição em vez de simplesmente falhar.
-        var jaExistem = new List<string>();
-        foreach (var per in _periodos)
-        {
-            if (await _controller.ExisteBalancoAsync(empresa.Id, per.Ano, per.Tipo))
-                jaExistem.Add(per.LabelCompleto);
-        }
-
-        bool substituir = false;
-        if (jaExistem.Count > 0)
-        {
-            substituir = await DisplayAlert(
-                "Balanço já existe",
-                $"Já existe(m) balanço(s) salvo(s) para:\n• {string.Join("\n• ", jaExistem)}\n\n" +
-                "Deseja SUBSTITUIR? O balanço anterior não será apagado — fica guardado " +
-                "no banco (inativo) e pode ser recuperado depois, se preciso.",
-                "Substituir", "Cancelar");
-
-            if (!substituir) return; // usuário preferiu não mexer
-        }
-
-        // Salva 1 Balanco por período
-        int salvos = 0;
-        var erros = new List<string>();
-
-        for (int p = 0; p < _periodos.Count; p++)
-        {
-            var per = _periodos[p];
-
-            // Só persiste contas COM valor (≠ 0). Salvar contas zeradas poluía o
-            // banco e podia dar a impressão de "balanço vazio" na visualização.
-            var contas = _linhas
-                .Where(l => l.EhEditavel && l.ObterCelula(p).Valor != 0)
-                .Select(l => new ContaBalanco
-                {
-                    ContaPadraoId = l.Conta.Id,
-                    Valor = l.ObterCelula(p).Valor
-                })
-                .ToList();
-
-            if (contas.Count == 0)
-            {
-                erros.Add($"{per.LabelCompleto}: nenhuma conta preenchida (todos os valores estão zerados).");
-                continue;
-            }
-
-            var balanco = new Balanco
-            {
-                EmpresaId = empresa.Id,
-                AnoExercicio = per.Ano,
-                DataReferencia = per.DataReferencia,
-                TipoBalanco = per.Tipo,
-                UsuarioId = _sessao.UsuarioAtual.Id,
-                Origem = _origemImportacao,
-                HashOrigemPdf = (p == 0) ? _hashPdfImportado : null,
-                Contas = contas
-            };
-
-            var r = await _controller.SalvarAsync(balanco, substituir);
-            if (r.Sucesso)
-            {
-                salvos++;
-
-                // Se há DRE importada pra este período, salva também
-                if (_dresImportadas.TryGetValue((per.Ano, per.Tipo), out var dre) && dre.TemDados)
-                {
-                    dre.EmpresaId = empresa.Id;
-                    dre.UsuarioId = _sessao.UsuarioAtual.Id;
-                    await _controller.SalvarDreAsync(dre);
-                }
-            }
-            else
-                erros.Add($"{per.LabelCompleto}: {r.Mensagem}");
-        }
-
-        if (erros.Count == 0)
-        {
-            await DisplayAlert("Sucesso",
-                $"{salvos} balanço(s) salvo(s) com sucesso pra '{empresa.RazaoSocial}'.", "OK");
-        }
-        else
-        {
-            var msg = $"{salvos} salvos, {erros.Count} com erro:\n\n" + string.Join("\n", erros);
-            await DisplayAlert("Concluído com erros", msg, "OK");
-        }
-    }
+    
 }
