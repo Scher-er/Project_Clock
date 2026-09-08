@@ -117,6 +117,10 @@ public static class MauiProgram
         services.AddTransient<BalancosEmpresaViewModel>();
         services.AddTransient<BalancosEmpresaPage>();
         services.AddTransient<DetalheBalancoPage>();
+
+        services.AddTransient<AnalisesViewModel>();
+        services.AddTransient<AnalisesPage>();
+
         services.AddTransient<RevisaoImportacaoViewModel>();
         services.AddTransient<RevisaoImportacaoPage>();
         services.AddTransient<LogsPage>();
