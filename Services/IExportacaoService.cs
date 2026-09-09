@@ -19,6 +19,9 @@ public interface IExportacaoService : IService
     Task<ResultadoOperacao<string>> ExportarPdfAsync(Balanco balancoCompleto, Empresa empresa, IEnumerable<ContaPadrao> planoContas);
     Task<ResultadoOperacao<string>> ExportarJsonAsync(Balanco balancoCompleto, Empresa empresa);
 
+    /// <summary>Exportação Avançada: PowerPoint (.pptx) mockado (Fase 5).</summary>
+    Task<ResultadoOperacao<string>> ExportarPptAsync(Balanco balancoCompleto, Empresa empresa);
+
     /// <summary>Importa um balanço de um arquivo .json para o MySQL (com validação).</summary>
     Task<ResultadoOperacao<string>> ImportarJsonAsync(string caminhoArquivo, int usuarioId);
 

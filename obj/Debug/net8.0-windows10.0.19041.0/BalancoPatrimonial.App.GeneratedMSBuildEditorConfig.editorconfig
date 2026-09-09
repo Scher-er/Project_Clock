@@ -84,6 +84,12 @@ build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Vie
 build_metadata.AdditionalFiles.TargetPath = Views\ComparacaoPage.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\ComparacaoPage.xaml
 
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/DashboardPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.DashboardPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\DashboardPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\DashboardPage.xaml
+
 [C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/DetalheBalancoPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.DetalheBalancoPage.xaml
@@ -113,6 +119,12 @@ build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.PlanilhamentoPage.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\PlanilhamentoPage.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\PlanilhamentoPage.xaml
+
+[C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/PlanoContasPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = BalancoPatrimonial.App.Views.PlanoContasPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\PlanoContasPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\PlanoContasPage.xaml
 
 [C:/Users/scher/OneDrive(OG)/Documents/GitHub/Project_Clock/Views/RevisaoImportacaoPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml

@@ -19,4 +19,7 @@ public interface IListagensService : IService
 
     /// <summary>Cria conta analítica filha de uma totalizadora, com código único gerado.</summary>
     Task<ResultadoOperacao<ContaPadrao>> CriarContaAnaliticaAsync(int contaPaiId, string descricao);
+    
+    Task<MapeamentoDePara?> BuscarMapeamentoDeParaAsync(string textoOriginal, int? empresaId);
+    Task<ResultadoOperacao<bool>> SalvarMapeamentoDeParaAsync(MapeamentoDePara mapeamento);
 }

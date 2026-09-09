@@ -9,16 +9,19 @@ public class ListagensService : IListagensService
     private readonly IGrupoEconomicoDao _grupoDao;
     private readonly ISetorAtividadeDao _setorDao;
     private readonly IContaPadraoDao _contaDao;
+    private readonly IMapeamentoDeParaDao _deParaDao;
     public string NomeServico => "ListagensService";
 
     public ListagensService(
         IGrupoEconomicoDao grupoDao,
         ISetorAtividadeDao setorDao,
-        IContaPadraoDao contaDao)
+        IContaPadraoDao contaDao,
+        IMapeamentoDeParaDao deParaDao)
     {
         _grupoDao = grupoDao;
         _setorDao = setorDao;
         _contaDao = contaDao;
+        _deParaDao = deParaDao;
     }
 
     public async Task<IEnumerable<GrupoEconomico>> ListarGruposEconomicosAsync()
@@ -99,6 +102,33 @@ public class ListagensService : IListagensService
         catch
         {
             return Array.Empty<ContaPadrao>();
+        }
+    }
+
+    public Task<MapeamentoDePara?> BuscarMapeamentoDeParaAsync(string textoOriginal, int? empresaId)
+    {
+        return _deParaDao.BuscarMapeamentoAsync(textoOriginal, empresaId);
+    }
+
+    public async Task<ResultadoOperacao<bool>> SalvarMapeamentoDeParaAsync(MapeamentoDePara mapeamento)
+    {
+        try
+        {
+            var existente = await _deParaDao.BuscarMapeamentoAsync(mapeamento.TextoOriginal, mapeamento.EmpresaId);
+            if (existente != null)
+            {
+                existente.ContaPadraoId = mapeamento.ContaPadraoId;
+                await _deParaDao.AtualizarAsync(existente);
+            }
+            else
+            {
+                await _deParaDao.InserirAsync(mapeamento);
+            }
+            return ResultadoOperacao<bool>.Ok(true);
+        }
+        catch (Exception ex)
+        {
+            return ResultadoOperacao<bool>.FalhaExcecao(ex);
         }
     }
 }

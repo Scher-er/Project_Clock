@@ -16,14 +16,18 @@ public class PlanilhamentoController : IPlanilhamentoController
 
     public string NomeRecurso => "Planilhamento";
 
+    private readonly ICvmMockService _cvmMock;
+
     public PlanilhamentoController(
         IEmpresaService empresaService,
         IListagensService listagens,
         IBalancoService balancoService,
         IPdfParserService pdfParser,
         IPdfAiAnalyzerService aiAnalyzer,
-        IDreDao dreDao)
+        IDreDao dreDao,
+        ICvmMockService cvmMock)
     {
+        _cvmMock = cvmMock;
         _empresaService = empresaService;
         _listagens = listagens;
         _balancoService = balancoService;
@@ -68,6 +72,9 @@ public class PlanilhamentoController : IPlanilhamentoController
 
     public Task<ResultadoOperacao<AnaliseAutomaticaResultado>> ImportarPdfAutomaticoAsync(Stream pdfStream, string nomeArquivo)
         => _aiAnalyzer.AnalisarAutomaticoAsync(pdfStream, nomeArquivo);
+
+    public Task<ResultadoOperacao<AnaliseAutomaticaResultado>> ImportarTickerB3Async(string ticker)
+        => _cvmMock.BuscarHistoricoB3Async(ticker);
 
     public async Task<ResultadoOperacao<Empresa>> BuscarOuCadastrarEmpresaAsync(
         string razaoSocial, string cnpj, Models.Enums.TipoEmpresa tipo, string? uf)

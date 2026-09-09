@@ -40,6 +40,11 @@ public interface IPlanilhamentoController : IController
     Task<ResultadoOperacao<AnaliseAutomaticaResultado>> ImportarPdfAutomaticoAsync(Stream pdfStream, string nomeArquivo);
 
     /// <summary>
+    /// Importação MOCKADA via ticker B3 (ex: PETR4).
+    /// </summary>
+    Task<ResultadoOperacao<AnaliseAutomaticaResultado>> ImportarTickerB3Async(string ticker);
+
+    /// <summary>
     /// Busca uma empresa pelo CNPJ; se não existir, cadastra com os dados fornecidos.
     /// Retorna a empresa (existente ou recém-criada).
     /// </summary>

@@ -55,6 +55,7 @@ public partial class PlanilhamentoViewModel : BaseViewModel
 
     public ObservableCollection<PeriodoPlanilhado> Periodos { get; } = new();
     public List<LinhaContaPlanilhamento> Linhas { get; private set; } = new();
+    public ObservableCollection<ItemTabelaPlanilhamento> ItensTabela { get; } = new();
     public List<ContaPadrao> PlanoContas { get; private set; } = new();
 
     // Dicionário de resultados importados para cruzamento
@@ -106,6 +107,7 @@ public partial class PlanilhamentoViewModel : BaseViewModel
                 linha.ObterCelula(perIdx).Valor = valor;
         }
 
+        AtualizarItensTabela();
         ReconstruirTabelaAction?.Invoke();
     }
 
@@ -132,6 +134,7 @@ public partial class PlanilhamentoViewModel : BaseViewModel
                 });
 
                 AtualizarSubtitulo();
+                AtualizarItensTabela();
                 PlanoCarregado?.Invoke();
                 AtualizarKpisAction?.Invoke();
             }
@@ -149,4 +152,25 @@ public partial class PlanilhamentoViewModel : BaseViewModel
         else
             Subtitulo = $"Vínculo não definido ({Periodos.Count} período(s))";
     }
+
+    public void AtualizarItensTabela()
+    {
+        ItensTabela.Clear();
+        for (int idx = 0; idx < Linhas.Count; idx++)
+        {
+            var l = Linhas[idx];
+            l.AtualizarCelulasVisiveis(Periodos.Count); // ensure the row has cells
+            ItensTabela.Add(new ItemTabelaPlanilhamento { Tipo = TipoItemTabela.LinhaConta, Linha = l });
+            
+            if (l.EhEditavel && l.Pai is not null)
+            {
+                bool ultimaDoPai = (idx == Linhas.Count - 1) || !ReferenceEquals(Linhas[idx + 1].Pai, l.Pai);
+                if (ultimaDoPai)
+                {
+                    ItensTabela.Add(new ItemTabelaPlanilhamento { Tipo = TipoItemTabela.BotaoAdicionar, ContaPaiIdParaAdicionar = l.Pai.Conta.Id });
+                }
+            }
+        }
+    }
+
 }

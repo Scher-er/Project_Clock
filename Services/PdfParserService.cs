@@ -84,7 +84,7 @@ public class PdfParserService : IPdfParserService
             }
 
             // 5) Tentar mapear cada linha contra uma conta padrão
-            MapearLinhasParaContas(linhasPdf, contas, resultado);
+            await MapearLinhasParaContasAsync(linhasPdf, contas, resultado);
 
             await _log.RegistrarAsync(
                 TipoEventoLog.Importacao,
@@ -242,7 +242,7 @@ public class PdfParserService : IPdfParserService
         new(@"(?<neg>\()?(?<valor>-?\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?)\)?",
             RegexOptions.Compiled);
 
-    private void MapearLinhasParaContas(
+    private async Task MapearLinhasParaContasAsync(
         List<LinhaPdf> linhas, List<ContaPadrao> contas, ImportacaoPdfResultado r)
     {
         // Indexa as contas analíticas (não totalizadoras) pra matching
@@ -261,8 +261,27 @@ public class PdfParserService : IPdfParserService
             if (string.IsNullOrWhiteSpace(descricao)) continue;
             if (descricao.Length < 4) continue;  // muito curto, provavelmente número
 
-            // 2) Busca conta padrão com maior similaridade
+            
             var descNormalizada = Normalizar(descricao);
+
+            // 1.5) Primeiro, checa dicionário De/Para
+            // Assumiremos EmpresaId = null por enquanto porque no ImportarPdf ainda não sabemos a empresa.
+            // A empresa só é cadastrada depois no Planilhamento.
+            var dePara = await _listagens.BuscarMapeamentoDeParaAsync(descNormalizada, null);
+            if (dePara != null && dePara.ContaPadraoId > 0)
+            {
+                var contaMatch = contas.FirstOrDefault(c => c.Id == dePara.ContaPadraoId);
+                if (contaMatch != null)
+                {
+                    if (!r.ContasMapeadas.ContainsKey(contaMatch.Id))
+                    {
+                        r.ContasMapeadas[contaMatch.Id] = valor.Value;
+                    }
+                    continue;
+                }
+            }
+
+            // 2) Busca conta padrão com maior similaridade
             var melhor = EncontrarMelhorMatch(descNormalizada, contasParaMatch);
 
             if (melhor is null)

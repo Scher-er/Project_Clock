@@ -576,6 +576,78 @@ public partial class PlanilhamentoPage : ContentPage
     private async void OnImportarPdfComIaClicado(object? sender, EventArgs e)
         => await ImportarComIaAutomaticoAsync();
 
+    private async void OnImportarB3Clicado(object sender, EventArgs e)
+    {
+        string ticker = await DisplayPromptAsync("Importação B3", "Digite o ticker da ação (ex: PETR4, VALE3, ITUB4):", "Buscar", "Cancelar", "PETR4");
+        if (string.IsNullOrWhiteSpace(ticker)) return;
+
+        _viewModel.IsBusy = true;
+        lblSubtitulo.Text = $"Buscando histórico de {ticker} na B3...";
+
+        try
+        {
+            var r = await _controller.ImportarTickerB3Async(ticker);
+            if (!r.Sucesso || r.Dados is null)
+            {
+                await DisplayAlert("Erro", r.Mensagem, "OK");
+                return;
+            }
+
+            var dados = r.Dados;
+            
+            if (_viewModel.EmpresaSelecionada == null && dados.TemEmpresa)
+            {
+                var busca = await _controller.BuscarOuCadastrarEmpresaAsync(
+                    dados.RazaoSocial, 
+                    dados.Cnpj, 
+                    TipoEmpresa.Outro, 
+                    dados.UfAtuacao);
+                    
+                if (busca.Sucesso && busca.Dados != null)
+                {
+                    DefinirEmpresaSelecionada(busca.Dados);
+                }
+            }
+            
+            for (int i = 0; i < dados.Periodos.Count; i++)
+            {
+                var pDados = dados.Periodos[i];
+                _viewModel.Periodos.Add(new PeriodoPlanilhado
+                {
+                    Ano = pDados.Ano,
+                    Mes = pDados.Mes,
+                    Tipo = pDados.Tipo
+                });
+                
+                int perIdx = _viewModel.Periodos.Count - 1;
+                
+                foreach (var (contaId, valor) in pDados.ContasMapeadas)
+                {
+                    var linha = _viewModel.Linhas.FirstOrDefault(l => l.Conta.Id == contaId);
+                    if (linha is not null && linha.EhEditavel)
+                    {
+                        linha.ObterCelula(perIdx).Valor = valor;
+                    }
+                }
+            }
+            
+            await DisplayAlert("Importação Concluída", $"Histórico de {ticker} importado com sucesso da CVM/B3.", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Erro", $"Falha ao buscar na B3: {ex.Message}", "OK");
+        }
+        finally
+        {
+            _viewModel.IsBusy = false;
+            _viewModel.AtualizarSubtitulo();
+            _viewModel.AtualizarItensTabela();
+            AtualizarChips();
+            AtualizarKPIs();
+        }
+    }
+
+
     // ─────────────────────────────────────────────────────────
     // IMPORTAÇÃO HEURÍSTICA (parser regex) — preenche 1º período
     // ─────────────────────────────────────────────────────────
@@ -701,7 +773,7 @@ public partial class PlanilhamentoPage : ContentPage
         }
     }
 
-    private async Task ImportarComIaAutomaticoAsync()
+        private async Task ImportarComIaAutomaticoAsync()
     {
         if (!await _controller.IaConfiguradaAsync())
         {
@@ -711,154 +783,115 @@ public partial class PlanilhamentoPage : ContentPage
             return;
         }
 
-        var arquivo = await SelecionarPdfAsync();
-        if (arquivo is null) return;
+        var arquivos = await SelecionarPdfsAsync();
+        if (arquivos is null || !arquivos.Any()) return;
 
-        // Lê o PDF em memória UMA vez, pra poder tentar de novo sem reenviar
+        var arquivosList = arquivos.ToList();
+        
+        lblSubtitulo.Text = $"Analisando {arquivosList.Count} arquivos via Gemini em lote...";
+        _viewModel.IsBusy = true;
+        
         try
         {
-            await using var stream = await arquivo.OpenReadAsync();
-            using var mem = new MemoryStream();
-            await stream.CopyToAsync(mem);
-            _ultimoPdfBytes = mem.ToArray();
-            _ultimoPdfNome = arquivo.FileName;
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Erro", $"Não foi possível ler o PDF: {ex.Message}", "OK");
-            return;
-        }
-
-        await ExecutarImportacaoIaAsync();
-    }
-
-    /// <summary>
-    /// Executa a análise do PDF já carregado em memória (_ultimoPdfBytes).
-    /// Em caso de falha (ex: erro 503/sobrecarga), oferece "Tentar novamente"
-    /// reusando os mesmos bytes — sem o usuário precisar reenviar o arquivo.
-    /// </summary>
-    private async Task ExecutarImportacaoIaAsync()
-    {
-        if (_ultimoPdfBytes is null || _ultimoPdfNome is null) return;
-
-        lblSubtitulo.Text = $"Analisando '{_ultimoPdfNome}' via Gemini — detectando empresa e períodos...";
-
-        try
-        {
-            using var stream = new MemoryStream(_ultimoPdfBytes);
-            var r = await _controller.ImportarPdfAutomaticoAsync(stream, _ultimoPdfNome);
-
-            if (!r.Sucesso || r.Dados is null)
-            {
-                _viewModel.AtualizarSubtitulo();
-                var tentar = await DisplayAlert("Erro na análise",
-                    $"{r.Mensagem}\n\nDeseja tentar novamente? (o PDF já está carregado, não precisa reenviar)",
-                    "Tentar novamente", "Cancelar");
-                if (tentar) await ExecutarImportacaoIaAsync();
-                return;
-            }
-
-            var dados = r.Dados;
-
-            if (dados.Periodos.Count == 0)
-            {
-                _viewModel.AtualizarSubtitulo();
-                await DisplayAlert("Nada detectado",
-                    "A IA não conseguiu detectar períodos no PDF. " +
-                    string.Join(" ", dados.Avisos), "OK");
-                return;
-            }
-
-            // 1) Empresa: busca ou cadastra automaticamente
-            var empresaR = await _controller.BuscarOuCadastrarEmpresaAsync(
-                dados.RazaoSocial, dados.Cnpj, dados.TipoEmpresa, dados.UfAtuacao);
-
-            string statusEmpresa;
-            if (empresaR.Sucesso && empresaR.Dados is not null)
-            {
-                DefinirEmpresaSelecionada(empresaR.Dados);
-                statusEmpresa = empresaR.Mensagem ?? "Empresa definida.";
-            }
-            else
-            {
-                // A IA leu o balanço mas não conseguiu cadastrar a empresa sozinha
-                // (quase sempre porque o CNPJ não estava legível no PDF).
-                // Oferece o cadastro rápido por pop-up (nome + CNPJ).
-                var cadastrada = await CadastrarEmpresaRapidaAsync(
-                    dados.RazaoSocial, dados.Cnpj, dados.TipoEmpresa, dados.UfAtuacao);
-                statusEmpresa = cadastrada is not null
-                    ? "Empresa cadastrada manualmente."
-                    : "Empresa não definida — selecione ou cadastre antes de salvar.";
-            }
-
-            // 2) Recarrega o plano de contas (a IA pode ter criado contas novas/ajuste)
-            await _viewModel.RecarregarPlanoPreservandoValoresAsync();
-
-            // 3) Limpa períodos e células atuais
-            _viewModel.Periodos.Clear();
-            foreach (var linha in _viewModel.Linhas)
-                linha.Celulas.Clear();
-
-            // 4) Cria períodos detectados + preenche contas
-            _viewModel.DresImportadas.Clear();
-            for (int i = 0; i < dados.Periodos.Count; i++)
-            {
-                var pd = dados.Periodos[i];
-                _viewModel.Periodos.Add(new PeriodoPlanilhado { Ano = pd.Ano, Mes = pd.Mes, Tipo = pd.Tipo });
-
-                foreach (var (contaId, valor) in pd.ContasMapeadas)
-                {
-                    var linha = _viewModel.Linhas.FirstOrDefault(l => l.Conta.Id == contaId);
-                    if (linha is not null && linha.EhEditavel)
-                        linha.ObterCelula(i).Valor = valor;
-                }
-
-                // Guarda a DRE (se a IA extraiu) pra salvar junto com o balanço
-                if (pd.TemDre)
-                {
-                    _viewModel.DresImportadas[(pd.Ano, pd.Tipo)] = new Dre
-                    {
-                        AnoExercicio = pd.Ano,
-                        TipoBalanco = pd.Tipo,
-                        ReceitaLiquida = pd.DreReceitaLiquida,
-                        LucroBruto = pd.DreLucroBruto,
-                        ResultadoOperacional = pd.DreResultadoOperacional,
-                        DespesasFinanceiras = pd.DreDespesasFinanceiras,
-                        LucroLiquido = pd.DreLucroLiquido,
-                        Origem = "PDF + IA (automático)",
-                        HashOrigemPdf = (i == 0) ? dados.HashPdf : null
-                    };
-                }
-            }
-
-            _hashPdfImportado = dados.HashPdf;
-            _nomeArquivoImportado = _ultimoPdfNome;
+            var tasks = new List<Task<ResultadoOperacao<AnaliseAutomaticaResultado>>>();
             
-
-            // 5) Reconstrói a tabela com tudo preenchido
-            ReconstruirTabela();
-
-            // 6) Abre a tela de revisão lado a lado (extraído x impresso por grupo).
-            //    A tabela do planilhamento já está preenchida por baixo.
-            var statusInfo = statusEmpresa;
-            if (!string.IsNullOrWhiteSpace(statusInfo))
-                dados.Avisos.Insert(0, statusInfo);
-
-            var revisao = App.Services.GetRequiredService<RevisaoImportacaoPage>();
-            revisao.Inicializar(dados);
-            await Navigation.PushAsync(revisao);
+            foreach (var arq in arquivosList)
+            {
+                tasks.Add(ProcessarArquivoIaAsync(arq));
+            }
+            
+            var resultados = await Task.WhenAll(tasks);
+            
+            int arquivosSucesso = 0;
+            foreach (var r in resultados)
+            {
+                if (r.Sucesso && r.Dados is not null)
+                {
+                    arquivosSucesso++;
+                    var dados = r.Dados;
+                    
+                    if (_viewModel.EmpresaSelecionada == null && dados.TemEmpresa)
+                    {
+                        var busca = await _controller.BuscarOuCadastrarEmpresaAsync(
+                            dados.RazaoSocial, 
+                            dados.Cnpj, 
+                            TipoEmpresa.Outro, 
+                            dados.UfAtuacao);
+                            
+                        if (busca.Sucesso && busca.Dados != null)
+                        {
+                            DefinirEmpresaSelecionada(busca.Dados);
+                        }
+                    }
+                    
+                    for (int i = 0; i < dados.Periodos.Count; i++)
+                    {
+                        var pDados = dados.Periodos[i];
+                        _viewModel.Periodos.Add(new PeriodoPlanilhado
+                        {
+                            Ano = pDados.Ano,
+                            Mes = pDados.Mes,
+                            Tipo = pDados.Tipo
+                        });
+                        
+                        int perIdx = _viewModel.Periodos.Count - 1;
+                        
+                        foreach (var (contaId, valor) in pDados.ContasMapeadas)
+                        {
+                            var linha = _viewModel.Linhas.FirstOrDefault(l => l.Conta.Id == contaId);
+                            if (linha is not null && linha.EhEditavel)
+                            {
+                                linha.ObterCelula(perIdx).Valor = valor;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            await DisplayAlert("Importação em Lote", $"{arquivosSucesso} de {arquivosList.Count} arquivos processados com sucesso.", "OK");
         }
         catch (Exception ex)
         {
+            await DisplayAlert("Erro", $"Falha ao processar PDFs: {ex.Message}", "OK");
+        }
+        finally
+        {
+            _viewModel.IsBusy = false;
             _viewModel.AtualizarSubtitulo();
-            var tentar = await DisplayAlert("Erro",
-                $"Falha ao processar PDF: {ex.Message}\n\nDeseja tentar novamente?",
-                "Tentar novamente", "Cancelar");
-            if (tentar) await ExecutarImportacaoIaAsync();
+            _viewModel.AtualizarItensTabela();
+            AtualizarChips();
+            AtualizarKPIs();
         }
     }
 
-    /// <summary>Abre o seletor de arquivo PDF. Retorna null se cancelado/erro.</summary>
+    private async Task<ResultadoOperacao<AnaliseAutomaticaResultado>> ProcessarArquivoIaAsync(FileResult arquivo)
+    {
+        await using var stream = await arquivo.OpenReadAsync();
+        using var mem = new MemoryStream();
+        await stream.CopyToAsync(mem);
+        mem.Position = 0;
+        return await _controller.ImportarPdfAutomaticoAsync(mem, arquivo.FileName);
+    }
+
+
+    
+    private async Task<IEnumerable<FileResult>> SelecionarPdfsAsync()
+    {
+        try
+        {
+            var r = await FilePicker.Default.PickMultipleAsync(new PickOptions
+            {
+                PickerTitle = "Selecionar PDFs",
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    [DevicePlatform.WinUI] = new[] { ".pdf" }
+                })
+            });
+            return r ?? Enumerable.Empty<FileResult>();
+        }
+        catch { return Enumerable.Empty<FileResult>(); }
+    }
+
     private async Task<FileResult?> SelecionarPdfAsync()
     {
         try

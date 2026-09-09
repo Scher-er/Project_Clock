@@ -35,6 +35,7 @@ public partial class AppShell : Shell
         //   garantindo que o DI seja usado.
         // ─────────────────────────────────────────────────────────────────
         var sp = App.Services;
+        scDashboard.ContentTemplate     = new DataTemplate(() => sp.GetRequiredService<DashboardPage>());
         scPlanilhamento.ContentTemplate = new DataTemplate(() => sp.GetRequiredService<PlanilhamentoPage>());
         scEmpresas.ContentTemplate      = new DataTemplate(() => sp.GetRequiredService<EmpresasPage>());
         scAnalises.ContentTemplate      = new DataTemplate(() => sp.GetRequiredService<AnalisesPage>());

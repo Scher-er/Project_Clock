@@ -19,6 +19,9 @@ public partial class App : Application
         // Aplica tema salvo (fire-and-forget — não bloqueia startup)
         _ = AplicarTemaSalvoAsync();
 
+        // Aquecimento da IA para reduzir latência do 1º uso
+        _ = WarmUpIaAsync();
+
         // Inicia na LoginPage. Após autenticar, a própria LoginPage troca pra AppShell.
         var loginPage = services.GetRequiredService<LoginPage>();
         MainPage = new NavigationPage(loginPage)
@@ -46,5 +49,18 @@ public partial class App : Application
         {
             // Falha silenciosa — tema é cosmético, não pode quebrar o app
         }
+    }
+
+    private async Task WarmUpIaAsync()
+    {
+        try
+        {
+            var iaService = Services.GetService<IPdfAiAnalyzerService>();
+            if (iaService != null && await iaService.ConfiguradoAsync())
+            {
+                await iaService.TestarConexaoAsync();
+            }
+        }
+        catch { }
     }
 }

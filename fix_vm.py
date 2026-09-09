@@ -1,37 +1,45 @@
 ﻿import re
 
-with open('ViewModels/PlanilhamentoViewModel.cs', 'r', encoding='mbcs') as f:
+with open('ViewModels/PlanilhamentoViewModel.cs', 'r', encoding='utf-8') as f:
     code = f.read()
 
-code = code.replace('private void AtualizarSubtitulo()', 'public void AtualizarSubtitulo()')
+# Add the ObservableCollection
+replacement = '''    public ObservableCollection<PeriodoPlanilhado> Periodos { get; } = new();
+    public List<LinhaContaPlanilhamento> Linhas { get; private set; } = new();
+    public ObservableCollection<ItemTabelaPlanilhamento> ItensTabela { get; } = new();
+    public List<ContaPadrao> PlanoContas { get; private set; } = new();'''
 
-new_method = """    public async Task RecarregarPlanoPreservandoValoresAsync()
+code = code.replace('''    public ObservableCollection<PeriodoPlanilhado> Periodos { get; } = new();
+    public List<LinhaContaPlanilhamento> Linhas { get; private set; } = new();
+    public List<ContaPadrao> PlanoContas { get; private set; } = new();''', replacement)
+
+# Instead of relying on Action events to call ReconstruirTabela, the VM itself can update ItensTabela
+update_logic = '''
+    public void AtualizarItensTabela()
     {
-        var snapshot = new Dictionary<(int contaId, int perIdx), decimal>();
-        foreach (var linha in Linhas.Where(l => l.EhEditavel))
-            foreach (var kv in linha.Celulas)
-                if (kv.Value.Valor != 0)
-                    snapshot[(linha.Conta.Id, kv.Key)] = kv.Value.Valor;
-
-        var rContas = await _controller.ListarPlanoDeContasAsync();
-        if (!rContas.Sucesso || rContas.Dados is null) return;
-
-        PlanoContas = rContas.Dados.ToList();
-        Linhas = LinhaContaPlanilhamento.ConstruirHierarquia(PlanoContas);
-
-        foreach (var ((contaId, perIdx), valor) in snapshot)
+        ItensTabela.Clear();
+        for (int idx = 0; idx < Linhas.Count; idx++)
         {
-            if (perIdx >= Periodos.Count) continue;
-            var linha = Linhas.FirstOrDefault(l => l.Conta.Id == contaId);
-            if (linha is not null && linha.EhEditavel)
-                linha.ObterCelula(perIdx).Valor = valor;
+            var l = Linhas[idx];
+            l.AtualizarCelulasVisiveis(Periodos.Count); // ensure the row has cells
+            ItensTabela.Add(new ItemTabelaPlanilhamento { Tipo = TipoItemTabela.LinhaConta, Linha = l });
+            
+            if (l.EhEditavel && l.Pai is not null)
+            {
+                bool ultimaDoPai = (idx == Linhas.Count - 1) || !ReferenceEquals(Linhas[idx + 1].Pai, l.Pai);
+                if (ultimaDoPai)
+                {
+                    ItensTabela.Add(new ItemTabelaPlanilhamento { Tipo = TipoItemTabela.BotaoAdicionar, ContaPaiIdParaAdicionar = l.Pai.Conta.Id });
+                }
+            }
         }
-
-        ReconstruirTabelaAction?.Invoke();
     }
-"""
+'''
 
-code = re.sub(r'public async Task InicializarAsync\(\)\s*\{', new_method + '\n    public async Task InicializarAsync() {', code, count=1)
+# We will inject AtualizarItensTabela() before the last brace
+idx = code.rfind('}')
+if idx != -1:
+    code = code[:idx] + update_logic + '\n}'
 
 with open('ViewModels/PlanilhamentoViewModel.cs', 'w', encoding='utf-8') as f:
     f.write(code)

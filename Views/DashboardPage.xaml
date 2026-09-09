@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:models="clr-namespace:BalancoPatrimonial.App.Models"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:BalancoPatrimonial.App.ViewModels"
+             x:DataType="viewmodels:DashboardViewModel"
+             x:Class="BalancoPatrimonial.App.Views.DashboardPage"
+             Title="{Binding Title}">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="24" Spacing="24">
+                
+                <Label Text="Visão Geral do Sistema" Style="{StaticResource TituloPagina}" />
+                <Label Text="Métricas e atalhos rápidos" Style="{StaticResource SubtituloPagina}" />
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="16">
+                    <Border Grid.Column="0" Style="{StaticResource Card}" Padding="20">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Empresas Cadastradas" TextColor="{StaticResource TextMuted}" FontSize="14" />
+                            <Label Text="{Binding TotalEmpresas}" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#1F3A60, Dark=#FFF}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Card}" Padding="20">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Balanços Processados" TextColor="{StaticResource TextMuted}" FontSize="14" />
+                            <Label Text="{Binding TotalBalancos}" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#1F3A60, Dark=#FFF}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="20">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Última Análise" TextColor="{StaticResource TextMuted}" FontSize="14" />
+                            <Label Text="{Binding UltimaAnalise}" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#1F3A60, Dark=#FFF}" LineBreakMode="TailTruncation" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Label Text="Últimas Empresas" FontSize="18" FontAttributes="Bold" Margin="0,16,0,0" />
+                <CollectionView ItemsSource="{Binding UltimasEmpresas}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Empresa">
+                            <Border Style="{StaticResource Card}" Padding="16" Margin="0,0,0,8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding RazaoSocial}" FontSize="16" FontAttributes="Bold" />
+                                        <Label Text="{Binding Cnpj}" FontSize="12" TextColor="{StaticResource TextMuted}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding Balancos.Count, StringFormat='{0} balanços'}" VerticalOptions="Center" FontSize="12" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Loading Overlay -->
+        <Grid BackgroundColor="{AppThemeBinding Light=#80FFFFFF, Dark=#80000000}" 
+              IsVisible="{Binding IsBusy}" ZIndex="100">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="16">
+                <ActivityIndicator IsRunning="True" Color="#1F6FEB" WidthRequest="48" HeightRequest="48"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+
+</ContentPage>

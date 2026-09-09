@@ -17,7 +17,8 @@
           5 = Tabela (*)
           6 = Rodapé
     -->
-    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, *, Auto" Padding="0">
+        <Grid>
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, *, Auto" Padding="0">
 
         <!-- Cabeçalho -->
         <Border Grid.Row="0"
@@ -70,6 +71,11 @@
                         Style="{StaticResource PrimaryButton}"
                         VerticalOptions="End" WidthRequest="150"
                         Clicked="OnImportarPdfComIaClicado"/>
+
+                <Button Grid.Column="4" Text="Importar B3 (Mock)"
+                        Style="{StaticResource PrimaryButton}" BackgroundColor="#2E8B57"
+                        VerticalOptions="End" WidthRequest="150"
+                        Clicked="OnImportarB3Clicado"/>
 
                 <Button Grid.Column="4" Text="Limpar"
                         Style="{StaticResource SecondaryButton}"
@@ -224,6 +230,17 @@
             </Grid>
         </Border>
 
+    </Grid>
+
+        <!-- LOADING OVERLAY -->
+        <Grid BackgroundColor="{AppThemeBinding Light=#80FFFFFF, Dark=#80000000}" 
+              IsVisible="{Binding IsBusy}"
+              ZIndex="100">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="16">
+                <ActivityIndicator IsRunning="True" Color="#1F6FEB" WidthRequest="48" HeightRequest="48"/>
+                <Label Text="{Binding Subtitulo}" TextColor="{AppThemeBinding Light=#111, Dark=#FFF}" FontAttributes="Bold" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Grid>
     </Grid>
 </ContentPage>
 

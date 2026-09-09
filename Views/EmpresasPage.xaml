@@ -11,7 +11,8 @@
         <ToolbarItem Text="Importar JSON" Command="{Binding ImportarJsonCommand}"/>
     </ContentPage.ToolbarItems>
 
-    <Grid RowDefinitions="Auto, Auto, *" Padding="24" RowSpacing="16">
+        <Grid>
+        <Grid RowDefinitions="Auto, Auto, *" Padding="24" RowSpacing="16">
 
         <!-- Cabeçalho -->
         <VerticalStackLayout Grid.Row="0" Spacing="4">
@@ -155,5 +156,16 @@
                 </CollectionView>
             </Grid>
         </RefreshView>
+    </Grid>
+
+        <!-- LOADING OVERLAY -->
+        <Grid BackgroundColor="{AppThemeBinding Light=#80FFFFFF, Dark=#80000000}" 
+              IsVisible="{Binding IsBusy}"
+              ZIndex="100">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="16">
+                <ActivityIndicator IsRunning="True" Color="#1F6FEB" WidthRequest="48" HeightRequest="48"/>
+                <Label Text="Carregando..." TextColor="{AppThemeBinding Light=#111, Dark=#FFF}" FontAttributes="Bold" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Grid>
     </Grid>
 </ContentPage>

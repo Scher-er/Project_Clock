@@ -32,6 +32,9 @@ public class ExportacaoController : IExportacaoController
     public Task<ResultadoOperacao<string>> ExportarJsonAsync(int balancoId)
         => ExportarAsync(balancoId, "JSON");
 
+    public Task<ResultadoOperacao<string>> ExportarPptAsync(int balancoId)
+        => ExportarAsync(balancoId, "PPT");
+
     public string ObterPastaExportacoes() => _exportService.ObterPastaExportacoes();
 
     public Task<ResultadoOperacao<string>> ImportarJsonAsync(string caminhoArquivo, int usuarioId)
@@ -67,6 +70,7 @@ public class ExportacaoController : IExportacaoController
             "Excel" => await _exportService.ExportarExcelAsync(balanco, empresa, planoContas),
             "PDF"   => await _exportService.ExportarPdfAsync(balanco, empresa, planoContas),
             "JSON"  => await _exportService.ExportarJsonAsync(balanco, empresa),
+            "PPT"   => await _exportService.ExportarPptAsync(balanco, empresa),
             _       => ResultadoOperacao<string>.Falha($"Formato desconhecido: {formato}")
         };
     }

@@ -53,6 +53,11 @@
         Activator.CreateInstance que falha porque as pages têm construtores
         com parâmetros (injeção de dependência).
     -->
+    <!-- Dashboard -->
+    <FlyoutItem Title="Dashboard" Route="dashboard">
+        <ShellContent x:Name="scDashboard" />
+    </FlyoutItem>
+
     <FlyoutItem Title="Planilhamento" Route="planilhamento">
         <ShellContent x:Name="scPlanilhamento" />
     </FlyoutItem>

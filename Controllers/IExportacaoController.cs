@@ -13,6 +13,7 @@ public interface IExportacaoController : IController
     Task<ResultadoOperacao<string>> ExportarExcelAsync(int balancoId);
     Task<ResultadoOperacao<string>> ExportarPdfAsync(int balancoId);
     Task<ResultadoOperacao<string>> ExportarJsonAsync(int balancoId);
+    Task<ResultadoOperacao<string>> ExportarPptAsync(int balancoId);
 
     /// <summary>Pasta onde os arquivos exportados ficam (FileSystem.AppDataDirectory/exportacoes).</summary>
     string ObterPastaExportacoes();

@@ -36,6 +36,17 @@ public class LinhaContaPlanilhamento
     /// <summary>Células por índice de período. Lazy: cria sob demanda.</summary>
     public Dictionary<int, CelulaPlanilhamento> Celulas { get; } = new();
 
+    public System.Collections.ObjectModel.ObservableCollection<CelulaPlanilhamento> CelulasVisiveis { get; } = new();
+
+    public void AtualizarCelulasVisiveis(int totalPeriodos)
+    {
+        CelulasVisiveis.Clear();
+        for (int i = 0; i < totalPeriodos; i++)
+        {
+            CelulasVisiveis.Add(ObterCelula(i));
+        }
+    }
+
     /// <summary>Obtém (ou cria) a célula para o índice do período.</summary>
     public CelulaPlanilhamento ObterCelula(int perIdx)
     {

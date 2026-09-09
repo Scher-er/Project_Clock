@@ -362,7 +362,7 @@ public partial class DetalheBalancoPage : ContentPage
         if (_balanco is null) return;
 
         var formato = await DisplayActionSheet(
-            "Exportar balanço como:", "Cancelar", null, "PDF", "Excel", "JSON");
+            "Exportar balanço como:", "Cancelar", null, "PDF", "Excel", "JSON", "Apresentação PPT (Mock)");
         if (string.IsNullOrEmpty(formato) || formato == "Cancelar") return;
 
         try
@@ -375,6 +375,7 @@ public partial class DetalheBalancoPage : ContentPage
                 "PDF" => await _exportacao.ExportarPdfAsync(_balancoId),
                 "Excel" => await _exportacao.ExportarExcelAsync(_balancoId),
                 "JSON" => await _exportacao.ExportarJsonAsync(_balancoId),
+                "Apresentação PPT (Mock)" => await _exportacao.ExportarPptAsync(_balancoId),
                 _ => ResultadoOperacao<string>.Falha("Formato inválido.")
             };
 
