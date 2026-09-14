@@ -6,6 +6,9 @@ function Pause-Script {
 }
 
 try {
+    # Garante que o PowerShell rode na pasta do projeto e nao no System32
+    Set-Location $PSScriptRoot
+
     Write-Host "==================================================" -ForegroundColor Cyan
     Write-Host "     INICIALIZACAO DO PROJECT CLOCK (v2.0)        " -ForegroundColor Cyan
     Write-Host "==================================================" -ForegroundColor Cyan
@@ -134,3 +137,4 @@ try {
     Write-Host $_.Exception.Message -ForegroundColor Red
     Pause-Script
 }
+
