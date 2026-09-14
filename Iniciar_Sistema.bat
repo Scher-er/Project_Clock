@@ -1,7 +1,8 @@
 @echo off
 color 0B
+title Iniciador do Project Clock
 echo Iniciando verificacao do ambiente Project Clock...
-powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0\RunProjectClock.ps1"
-if %errorlevel% neq 0 (
-    pause
-)
+powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0RunProjectClock.ps1"
+echo.
+echo O Script de inicializacao foi finalizado (ou ocorreu um erro que impediu o PowerShell de rodar).
+pause
