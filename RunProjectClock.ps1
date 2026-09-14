@@ -23,8 +23,7 @@ try {
     Write-Host "OK: .NET CLI encontrado (Versao: $dotnetVersion)" -ForegroundColor Green
 
     # 2. Restaurar pacotes e workloads
-    Write-Host "
-[2/4] Verificando dependencias e pacotes NuGet..." -ForegroundColor Yellow
+    Write-Host "`n[2/4] Verificando dependencias e pacotes NuGet..." -ForegroundColor Yellow
     try {
         dotnet restore
         Write-Host "OK: Pacotes restaurados com sucesso." -ForegroundColor Green
@@ -35,8 +34,7 @@ try {
     }
 
     # 3. Validar e Iniciar Conexoes
-    Write-Host "
-[3/4] Verificando servicos de Banco de Dados..." -ForegroundColor Yellow
+    Write-Host "`n[3/4] Verificando servicos de Banco de Dados..." -ForegroundColor Yellow
 
     # Funcao auxiliar para iniciar servico
     function Ensure-ServiceRunning {
@@ -91,27 +89,48 @@ try {
         Write-Host " ! O aplicativo funcionara, mas nenhum Log de Auditoria sera salvo no banco." -ForegroundColor Yellow
     }
 
+    Write-Host "`n>>> AVISO DE CONEXAO <<<" -ForegroundColor Magenta
+    Write-Host "Se voce tentar logar no sistema com admin/admin e o banco der erro, verifique:" -ForegroundColor Magenta
+    Write-Host "1. A senha do seu MySQL no arquivo 'appsettings.json' (esta padrao: Comput2026). Troque para a sua senha real do seu computador." -ForegroundColor Magenta
+    Write-Host "2. Se o banco 'balanco_patrimonial' foi criado (Lembre-se de rodar os arquivos .sql da pasta Scripts no seu MySQL Workbench!)." -ForegroundColor Magenta
+    Write-Host "-----------------------------------------------------------------------" -ForegroundColor Magenta
+
     # 4. Executar
-    Write-Host "
-[4/4] Compilando e iniciando a aplicacao MAUI Windows..." -ForegroundColor Yellow
+    Write-Host "`n[4/4] Compilando e iniciando a aplicacao MAUI Windows..." -ForegroundColor Yellow
     Write-Host "Pode levar alguns instantes na primeira vez. Uma nova janela do aplicativo ira se abrir..." -ForegroundColor DarkGray
+    Write-Host "O script aguardara o programa fechar para limpar os processos e desligar os bancos de dados..." -ForegroundColor DarkGray
 
     try {
         # Roda o aplicativo. O terminal vai aguardar ate o app fechar.
         dotnet run -f net8.0-windows10.0.19041.0
     } catch {
         Write-Host "Ocorreu um erro critico ao compilar/executar a aplicacao." -ForegroundColor Red
-        Pause-Script
-        exit
     }
 
-    Write-Host "
-Project Clock encerrado normalmente." -ForegroundColor Cyan
+    Write-Host "`n[5/5] Encerrando o Project Clock e limpando recursos em segundo plano..." -ForegroundColor Cyan
+    
+    # Desligar Servicos! O usuario quer que desligue incondicionalmente quando o app fecha
+    if ($mysqlOk) {
+        $mysqlService = Get-Service -Name "MySQL*" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($mysqlService -and $mysqlService.Status -eq 'Running') {
+            Write-Host "Desligando o MySQL ($($mysqlService.Name))..." -ForegroundColor Yellow
+            Start-Process powershell -Verb RunAs -Wait -ArgumentList "-WindowStyle Hidden -Command Stop-Service $($mysqlService.Name)" -ErrorAction SilentlyContinue
+        }
+    }
+
+    if ($mongoOk) {
+        $mongoService = Get-Service -Name "MongoDB*" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($mongoService -and $mongoService.Status -eq 'Running') {
+            Write-Host "Desligando o MongoDB ($($mongoService.Name))..." -ForegroundColor Yellow
+            Start-Process powershell -Verb RunAs -Wait -ArgumentList "-WindowStyle Hidden -Command Stop-Service $($mongoService.Name)" -ErrorAction SilentlyContinue
+        }
+    }
+
+    Write-Host "Processos em segundo plano (MySQL e MongoDB) encerrados com sucesso!" -ForegroundColor Green
     Start-Sleep -Seconds 3
 
 } catch {
-    Write-Host "
-UM ERRO INESPERADO OCORREU NO SCRIPT:" -ForegroundColor Red
+    Write-Host "`nUM ERRO INESPERADO OCORREU NO SCRIPT:" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
     Pause-Script
 }
