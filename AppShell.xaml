@@ -4,85 +4,70 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:BalancoPatrimonial.App.Views"
-    Shell.FlyoutBehavior="Flyout"
-    Shell.FlyoutBackgroundColor="{AppThemeBinding Light={StaticResource SidebarBackground}, Dark={StaticResource SidebarBackgroundDark}}"
+    Shell.FlyoutBehavior="Locked"
+    Shell.FlyoutWidth="230"
+    Shell.FlyoutBackgroundColor="{AppThemeBinding Light=#1F3A60, Dark=#0F1620}"
     Shell.BackgroundColor="{StaticResource Primary}"
     Shell.ForegroundColor="White"
     Shell.TitleColor="White"
-    FlyoutWidth="260"
-    Title="Balanço Patrimonial">
+    Shell.NavBarHasShadow="False"
+    Title="Project Clock">
 
-    <!-- Cabeçalho do sidebar (mostra o usuário logado) -->
+    <!-- Cabeçalho do sidebar -->
     <Shell.FlyoutHeader>
-        <Grid HeightRequest="140"
-              BackgroundColor="{StaticResource Primary}"
-              Padding="20">
-            <VerticalStackLayout VerticalOptions="Center" Spacing="4">
-                <Label Text="Balanço Patrimonial"
+        <Grid HeightRequest="110"
+              BackgroundColor="#13243D"
+              Padding="18,16">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                <Label Text="⏱  Project Clock"
                        TextColor="White"
-                       FontSize="20"
+                       FontSize="17"
                        FontAttributes="Bold"/>
-                <Label Text="Análise de Crédito"
-                       TextColor="{StaticResource TextMuted}"
-                       FontSize="12"/>
+                <Label Text="Balanço Patrimonial"
+                       TextColor="#8A93A6"
+                       FontSize="11"/>
                 <Label x:Name="lblUsuarioLogado"
                        Text="—"
-                       TextColor="White"
-                       FontSize="13"
-                       Margin="0,12,0,0"/>
+                       TextColor="#C9A14A"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       Margin="0,6,0,0"/>
             </VerticalStackLayout>
         </Grid>
     </Shell.FlyoutHeader>
 
-    <!-- Estilo dos itens do flyout -->
-    <Shell.Resources>
-        <Style x:Key="BaseStyle" TargetType="Element">
-            <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
-            <Setter Property="Shell.ForegroundColor" Value="White" />
-            <Setter Property="Shell.TitleColor" Value="White" />
-            <Setter Property="Shell.NavBarHasShadow" Value="False" />
-        </Style>
-        <Style TargetType="ShellContent" BasedOn="{StaticResource BaseStyle}" />
-        <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />
-    </Shell.Resources>
-
     <!--
-        IMPORTANTE: os ShellContents abaixo NÃO definem ContentTemplate aqui.
-        O code-behind do AppShell atribui os templates via DI (App.Services)
-        no construtor. Sem isso, o MAUI tenta instanciar as páginas via
-        Activator.CreateInstance que falha porque as pages têm construtores
-        com parâmetros (injeção de dependência).
+        ContentTemplate é atribuído no code-behind via DI.
+        NÃO usar ContentTemplate no XAML — as páginas têm construtores DI.
     -->
-    <!-- Dashboard -->
-    <FlyoutItem Title="Dashboard" Route="dashboard">
+    <FlyoutItem Title="📊  Dashboard" Route="dashboard">
         <ShellContent x:Name="scDashboard" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Planilhamento" Route="planilhamento">
-        <ShellContent x:Name="scPlanilhamento" />
-    </FlyoutItem>
-
-    <FlyoutItem Title="Empresas" Route="empresas">
+    <FlyoutItem Title="🏢  Empresas" Route="empresas">
         <ShellContent x:Name="scEmpresas" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Análises" Route="analises">
+    <FlyoutItem Title="📋  Planilhamento" Route="planilhamento">
+        <ShellContent x:Name="scPlanilhamento" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="📈  Análises" Route="analises">
         <ShellContent x:Name="scAnalises" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Comparar" Route="comparar">
+    <FlyoutItem Title="⚖️  Comparar" Route="comparar">
         <ShellContent x:Name="scComparacao" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Logs" Route="logs">
+    <FlyoutItem Title="📝  Logs" Route="logs">
         <ShellContent x:Name="scLogs" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Área de Testes" Route="testes">
+    <FlyoutItem Title="⚙️  Configurações" Route="testes">
         <ShellContent x:Name="scTestes" />
     </FlyoutItem>
 
-    <!-- Item de logout no rodapé do flyout -->
-    <MenuItem Text="Sair" Clicked="OnLogoutClicked" />
+    <MenuItem Text="🚪  Sair" Clicked="OnLogoutClicked" />
 
 </Shell>
