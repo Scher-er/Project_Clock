@@ -67,10 +67,14 @@ public partial class PlanilhamentoPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (!_viewModel.Linhas.Any())
+        try
         {
-            await _viewModel.InicializarAsync();
+            if (!_viewModel.Linhas.Any())
+            {
+                await _viewModel.InicializarAsync();
+            }
         }
+        catch { }
     }
 
     

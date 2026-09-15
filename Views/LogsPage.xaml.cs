@@ -20,7 +20,7 @@ public partial class LogsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await CarregarAsync();
+        try { await CarregarAsync(); } catch { }
     }
 
     private async void OnDataSelecionada(object? sender, DateChangedEventArgs e)

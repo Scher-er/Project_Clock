@@ -20,7 +20,7 @@ public partial class AnalisesPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InicializarAsync();
+        try { await _viewModel.InicializarAsync(); } catch { }
     }
 
     private void MontarRiscoEDetalhes(AnaliseEmpresa dados)

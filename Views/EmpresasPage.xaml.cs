@@ -16,6 +16,6 @@ public partial class EmpresasPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.CarregarInicialAsync();
+        try { await _viewModel.CarregarInicialAsync(); } catch { }
     }
 }

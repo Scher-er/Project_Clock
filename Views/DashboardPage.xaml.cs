@@ -1,4 +1,4 @@
-﻿using BalancoPatrimonial.App.ViewModels;
+using BalancoPatrimonial.App.ViewModels;
 
 namespace BalancoPatrimonial.App.Views;
 
@@ -15,6 +15,6 @@ public partial class DashboardPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.CarregarDadosAsync();
+        try { await _viewModel.CarregarDadosAsync(); } catch { }
     }
 }

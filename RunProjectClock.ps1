@@ -60,14 +60,26 @@ try {
                     try {
                         Start-Process powershell -Verb RunAs -Wait -ArgumentList "-WindowStyle Hidden -Command Start-Service $($service.Name)"
                         
-                        # Testa novamente a porta
-                        Start-Sleep -Seconds 2
-                        $portTest2 = Test-NetConnection -ComputerName 127.0.0.1 -Port $Port -WarningAction SilentlyContinue
-                        if ($portTest2.TcpTestSucceeded) {
+                        # Aguarda ate 15 segundos pela porta ficar disponivel
+                        $maxTentativas = 15
+                        $tentativa = 0
+                        $conectou = $false
+                        while ($tentativa -lt $maxTentativas) {
+                            $tentativa++
+                            Write-Host " >> Aguardando $DisplayName inicializar ($tentativa/$maxTentativas)..." -ForegroundColor DarkGray
+                            Start-Sleep -Seconds 1
+                            $portTest2 = Test-NetConnection -ComputerName 127.0.0.1 -Port $Port -WarningAction SilentlyContinue
+                            if ($portTest2.TcpTestSucceeded) {
+                                $conectou = $true
+                                break
+                            }
+                        }
+
+                        if ($conectou) {
                             Write-Host " >> SUCESSO: $DisplayName foi iniciado com sucesso!" -ForegroundColor Green
                             return $true
                         } else {
-                            Write-Host " >> ERRO: O servico parece ter iniciado, mas a porta continua fechada." -ForegroundColor Red
+                            Write-Host " >> ERRO: $DisplayName nao respondeu na porta $Port apos $maxTentativas segundos." -ForegroundColor Red
                         }
                     } catch {
                         Write-Host " >> ERRO: Falha ao tentar iniciar o servico (permissao negada ou erro interno)." -ForegroundColor Red

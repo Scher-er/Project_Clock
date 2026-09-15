@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using BalancoPatrimonial.App.Models;
 using BalancoPatrimonial.App.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -46,6 +46,10 @@ public partial class DashboardViewModel : BaseViewModel
                     UltimaAnalise = UltimasEmpresas.First().RazaoSocial;
                 }
             }
+        }
+        catch
+        {
+            // Falha silenciosa — o dashboard exibe zeros mas não trava a navegação
         }
         finally
         {

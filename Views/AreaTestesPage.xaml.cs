@@ -57,8 +57,12 @@ public partial class AreaTestesPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await CarregarConfiguracoesIaAsync();
-        await CarregarTemaAsync();
+        try
+        {
+            await CarregarConfiguracoesIaAsync();
+            await CarregarTemaAsync();
+        }
+        catch { }
     }
 
     private async Task CarregarTemaAsync()

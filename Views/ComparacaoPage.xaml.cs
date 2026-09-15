@@ -24,8 +24,12 @@ public partial class ComparacaoPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (pkEmpresaA.ItemsSource is null)
-            await CarregarEmpresasAsync();
+        try
+        {
+            if (pkEmpresaA.ItemsSource is null)
+                await CarregarEmpresasAsync();
+        }
+        catch { }
     }
 
     private async Task CarregarEmpresasAsync()
