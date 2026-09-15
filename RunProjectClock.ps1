@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 function Pause-Script {
     Write-Host ""
@@ -104,6 +104,20 @@ try {
     Write-Host "O script aguardara o programa fechar para limpar os processos e desligar os bancos de dados..." -ForegroundColor DarkGray
 
     try {
+        # Carrega variaveis do .env (credenciais locais nao versionadas)
+        $envFile = Join-Path $PSScriptRoot ".env"
+        if (Test-Path $envFile) {
+            Get-Content $envFile | ForEach-Object {
+                if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+                    [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), 'Process')
+                }
+            }
+            Write-Host "OK: Credenciais carregadas do arquivo .env" -ForegroundColor Green
+        } else {
+            Write-Host "AVISO: Arquivo .env nao encontrado. Crie um arquivo .env na raiz com:" -ForegroundColor Yellow
+            Write-Host "  BALANCO_MYSQL_PASSWORD=SuaSenhaAqui" -ForegroundColor Yellow
+        }
+
         # Roda o aplicativo. O terminal vai aguardar ate o app fechar.
         dotnet run -f net8.0-windows10.0.19041.0
     } catch {
