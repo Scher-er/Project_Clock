@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS MapeamentosDePara (
 -- DADOS INICIAIS DE TESTE
 -- Usuario admin/admin
 INSERT INTO usuario (nome, login, email, senha_hash, perfil)
-VALUES ('Administrador', 'admin', 'admin@banco.com.br', '$2a$11$Vp9m0wQp6x4s12Kk4tX6/OxB4jRk1b5W2e7K2c1vFqX4e2X2sY6qC', 'Administrador')
+VALUES ('Administrador', 'admin', 'admin@banco.com.br', '$2a$11$HTuD7sZgW6pyFgnBAh2mie77rTrE39WJEayENBaNSoxsjkp9Y9IUG', 'Administrador')
 ON DUPLICATE KEY UPDATE id=id; -- Hash BCrypt da palavra 'admin'
 
 -- Contas Padrao Basicas (Mock Inicial para o sistema abrir e a importacao B3 funcionar)
@@ -173,3 +173,4 @@ INSERT IGNORE INTO conta_padrao (id, codigo, descricao, grupo_principal, conta_p
 (23, '2.03.02', 'Reservas de Capital', 2, 21, 3, 0, 230),
 (24, '2.03.03', 'Reservas de Lucros', 2, 21, 3, 0, 240),
 (25, '2.03.04', 'Lucros/Prejuizos Acumulados', 2, 21, 3, 0, 250);
+
