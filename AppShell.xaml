@@ -19,7 +19,7 @@
               BackgroundColor="#13243D"
               Padding="18,16">
             <VerticalStackLayout VerticalOptions="Center" Spacing="2">
-                <Label Text="⏱  Project Clock"
+                <Label Text="Project Clock"
                        TextColor="White"
                        FontSize="17"
                        FontAttributes="Bold"/>
@@ -40,34 +40,34 @@
         ContentTemplate é atribuído no code-behind via DI.
         NÃO usar ContentTemplate no XAML — as páginas têm construtores DI.
     -->
-    <FlyoutItem Title="📊  Dashboard" Route="dashboard">
+    <FlyoutItem Title="Dashboard" Route="dashboard">
         <ShellContent x:Name="scDashboard" />
     </FlyoutItem>
 
-    <FlyoutItem Title="🏢  Empresas" Route="empresas">
+    <FlyoutItem Title="Empresas" Route="empresas">
         <ShellContent x:Name="scEmpresas" />
     </FlyoutItem>
 
-    <FlyoutItem Title="📋  Planilhamento" Route="planilhamento">
+    <FlyoutItem Title="Planilhamento" Route="planilhamento">
         <ShellContent x:Name="scPlanilhamento" />
     </FlyoutItem>
 
-    <FlyoutItem Title="📈  Análises" Route="analises">
+    <FlyoutItem Title="Análises" Route="analises">
         <ShellContent x:Name="scAnalises" />
     </FlyoutItem>
 
-    <FlyoutItem Title="⚖️  Comparar" Route="comparar">
+    <FlyoutItem Title="Comparar" Route="comparar">
         <ShellContent x:Name="scComparacao" />
     </FlyoutItem>
 
-    <FlyoutItem Title="📝  Logs" Route="logs">
+    <FlyoutItem Title="Logs" Route="logs">
         <ShellContent x:Name="scLogs" />
     </FlyoutItem>
 
-    <FlyoutItem Title="⚙️  Configurações" Route="testes">
+    <FlyoutItem Title="Configurações" Route="testes">
         <ShellContent x:Name="scTestes" />
     </FlyoutItem>
 
-    <MenuItem Text="🚪  Sair" Clicked="OnLogoutClicked" />
+    <MenuItem Text="Sair" Clicked="OnLogoutClicked" />
 
 </Shell>

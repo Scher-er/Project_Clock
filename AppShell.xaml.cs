@@ -15,7 +15,7 @@ public partial class AppShell : Shell
 
         if (_sessao.Autenticado && _sessao.UsuarioAtual is not null)
         {
-            lblUsuarioLogado.Text = $"👤 {_sessao.UsuarioAtual.Nome}";
+            lblUsuarioLogado.Text = _sessao.UsuarioAtual.Nome;
         }
 
         // Configura DataTemplates com DI — factory lambdas protegidas

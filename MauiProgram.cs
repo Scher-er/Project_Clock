@@ -125,9 +125,10 @@ public static class MauiProgram
         services.AddTransient<RevisaoImportacaoPage>();
         services.AddTransient<LogsPage>();
         services.AddTransient<AreaTestesPage>();
-        services.AddTransient<AnalisesPage>();
         services.AddTransient<ComparacaoPage>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<DashboardPage>();
+        services.AddTransient<PlanoContasViewModel>();
+        services.AddTransient<PlanoContasPage>();
     }
 }
