@@ -71,14 +71,17 @@ public static class MauiProgram
         services.AddTransient<IEmpresaDao, MySqlEmpresaDao>();
         services.AddTransient<IContaPadraoDao, MySqlContaPadraoDao>();
         services.AddTransient<IBalancoDao, MySqlBalancoDao>();
+        services.AddTransient<IDreDao, MySqlDreDao>();
+        // MySqlMapeamentoDeParaDao recebe string no construtor (legado), registrado via factory
+        services.AddTransient<IMapeamentoDeParaDao>(sp =>
+            new MySqlMapeamentoDeParaDao(sp.GetRequiredService<DatabaseSettings>().MySqlConnectionString));
 
         // SQLite
         services.AddTransient<IConfiguracaoLocalDao, SqliteConfiguracaoLocalDao>();
 
         // MongoDB
-        services.AddSingleton<ILogDao, MongoLogDao>();   // singleton porque mantém collection cacheada
+        services.AddSingleton<ILogDao, MongoLogDao>();
         services.AddSingleton<IAnaliseIaDao, MongoAnaliseIaDao>();
-        services.AddTransient<IDreDao, MySqlDreDao>();
 
         // ───── Sessão e Services ─────
         services.AddSingleton<ISessaoUsuario, SessaoUsuario>();
@@ -93,6 +96,7 @@ public static class MauiProgram
         services.AddTransient<IPdfAiAnalyzerService, GeminiPdfAnalyzerService>();
         services.AddTransient<IExportacaoService, ExportacaoService>();
         services.AddTransient<IAnaliseService, AnaliseService>();
+        services.AddTransient<ICvmMockService, CvmMockService>();
 
         // ───── Controllers ─────
         services.AddTransient<ILoginController, LoginController>();

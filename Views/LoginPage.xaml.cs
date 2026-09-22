@@ -9,4 +9,9 @@ public partial class LoginPage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
     }
+
+    private void OnLoginCompleted(object? sender, EventArgs e)
+    {
+        txtSenha.Focus();
+    }
 }

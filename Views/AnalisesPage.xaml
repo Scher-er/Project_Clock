@@ -47,7 +47,7 @@
             <!-- Conteúdo da análise (oculto até carregar) -->
             <VerticalStackLayout x:Name="painelAnalise"
                                  Spacing="20"
-                                 IsVisible="False">
+                                 IsVisible="{Binding IsPainelAnaliseVisivel}">
 
                 <!-- KPIs do último balanço -->
                 <Border Style="{StaticResource Card}">
@@ -62,44 +62,44 @@
 
                             <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
                                 <Label Text="ANO" Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiAno}"
                                        FontSize="20" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
                                 <Label Text="ATIVO TOTAL" Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiAtivo}"
                                        FontSize="16" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="2">
                                 <Label Text="PASSIVO+PL" Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiPassivo}"
                                        FontSize="16" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Row="0" Grid.Column="3" Spacing="2">
                                 <Label Text="PL" Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiPL}"
                                        FontSize="16" FontAttributes="Bold"
                                        TextColor="{StaticResource Primary}"/>
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2">
                                 <Label Text="LIQ. CORRENTE" Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiLiquidez}"
                                        FontSize="14" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2">
                                 <Label Text="ENDIV. GERAL" Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiEndividamento}"
                                        FontSize="14" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Row="1" Grid.Column="2" Spacing="2">
                                 <Label Text="COMP. ENDIV." Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiComposicao}"
                                        FontSize="14" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Row="1" Grid.Column="3" Spacing="2">
                                 <Label Text="IMOB. PL" Style="{StaticResource LabelCampo}"/>
-                                <Label Text="—"
+                                <Label Text="{Binding KpiImobilizacao}"
                                        FontSize="14" FontAttributes="Bold"/>
                             </VerticalStackLayout>
                         </Grid>

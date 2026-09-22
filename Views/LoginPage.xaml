@@ -48,7 +48,7 @@
                                IsEnabled="{Binding IsNotBusy}"
                                Placeholder="admin"
                                ReturnType="Next"
-                               ReturnCommand="{Binding Source={x:Reference txtSenha}, Path=Focus}"/>
+                               Completed="OnLoginCompleted"/>
                     </Border>
                 </VerticalStackLayout>
 
